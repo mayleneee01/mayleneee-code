@@ -1739,6 +1739,14 @@ code, pre {
     display: none;
   }
 
+  .hamburger-btn {
+    display: none;
+  }
+
+  .desktop-search {
+    display: block !important;
+  }
+
   .app-content {
     margin-left: 260px;
     width: calc(100% - 260px);

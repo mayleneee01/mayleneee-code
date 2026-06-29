@@ -1,0 +1,65 @@
+{
+  "dashboard": {
+    "greeting": "欢迎，{{name}}",
+    "subtitle": "继续您的学习或探索新的学习模块。",
+    "stats": {
+      "totalPoints": "总积分",
+      "modulesCompleted": "已完成模块",
+      "labsSolved": "已解决实验",
+      "currentStreak": "当前连续学习"
+    }
+  },
+  "paths": {
+    "coding": { "title": "编程基础" },
+    "asd": { "title": "算法与数据结构" },
+    "hacking": { "title": "道德黑客" }
+  },
+  "nav": {
+    "dashboard": "仪表板",
+    "paths": "学习路径",
+    "modules": "模块",
+    "labs": "全球实验室",
+    "leaderboard": "排行榜",
+    "profile": "个人资料",
+    "certificates": "证书",
+    "admin": "管理面板",
+    "login": "登录",
+    "logout": "登出",
+    "search": "搜索模块..."
+  },
+  "leaderboard": {
+    "title": "排行榜",
+    "weekly": "本周",
+    "monthly": "本月",
+    "allTime": "所有时间"
+  },
+  "auth": {
+    "loginTitle": "欢迎回来",
+    "loginSubtitle": "输入您的凭据以访问您的帐户。",
+    "registerTitle": "创建帐户",
+    "registerSubtitle": "加入 Mayleneee.code 并开始学习。",
+    "loginWithGoogle": "使用 Google 继续",
+    "loginWithGitHub": "使用 GitHub 继续",
+    "orContinueWith": "或使用电子邮件继续",
+    "email": "电子邮件地址",
+    "emailPlaceholder": "your@email.com",
+    "password": "密码",
+    "passwordPlaceholder": "输入您的密码",
+    "forgotPassword": "忘记密码？",
+    "loginButton": "登录",
+    "registerButton": "注册",
+    "noAccount": "没有帐户？",
+    "hasAccount": "已经有帐户？",
+    "signUpLink": "注册",
+    "signInLink": "登录",
+    "passwordRequirements": "必须至少包含8个字符",
+    "confirmPassword": "确认密码",
+    "confirmPasswordPlaceholder": "重复您的密码",
+    "showPassword": "显示密码",
+    "hidePassword": "隐藏密码"
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "发生错误。请重试。"
+  }
+}

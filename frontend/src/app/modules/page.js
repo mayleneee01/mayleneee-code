@@ -4,10 +4,14 @@ import { useState, useEffect } from 'react';
 import MainLayout from '../../components/MainLayout';
 import { useI18n } from '../../context/I18nContext';
 import { Book, Shield, Code, Brain } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 export default function ModulesPage() {
   const { t } = useI18n();
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get('search') || '';
+
   const [learningPaths, setLearningPaths] = useState([
     { id: 'coding', category: 'coding', icon: <Code size={24} />, title: 'Coding Fundamentals', description: 'Master the basics of programming and software engineering.', modules: 0, estimatedHours: 0, progress: 0 },
     { id: 'asd', category: 'asd', icon: <Brain size={24} />, title: 'Algorithms & Data Structures', description: 'Learn how to optimize code and solve complex problems efficiently.', modules: 0, estimatedHours: 0, progress: 0 },
@@ -66,6 +70,14 @@ export default function ModulesPage() {
       })));
   }
 
+  const filteredPaths = learningPaths.filter(path => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    const title = (t(`paths.${path.id}.title`) || path.title).toLowerCase();
+    const desc = path.description.toLowerCase();
+    return title.includes(q) || desc.includes(q) || path.category.includes(q);
+  });
+
   return (
     <MainLayout currentPage="paths">
       <main className="modules-page" style={{ padding: 'var(--space-8) var(--space-6)', maxWidth: '1200px', margin: '0 auto' }}>
@@ -78,7 +90,10 @@ export default function ModulesPage() {
         </p>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: 'var(--space-6)' }}>
-          {learningPaths.map((path) => (
+          {filteredPaths.length === 0 && (
+            <p style={{ color: 'var(--text-tertiary)' }}>No learning paths found for "{searchQuery}".</p>
+          )}
+          {filteredPaths.map((path) => (
             <Link href={`/modules/${path.id}`} key={path.id} style={{ textDecoration: 'none', color: 'inherit' }}>
               <div 
                 style={{ 

@@ -1,0 +1,64 @@
+{
+  "dashboard": {
+    "greeting": "ようこそ、{{name}}",
+    "subtitle": "学習を続けるか、新しい学習モジュールを探しましょう。",
+    "stats": {
+      "totalPoints": "合計ポイント",
+      "modulesCompleted": "完了モジュール",
+      "labsSolved": "解決したラボ",
+      "currentStreak": "連続学習記録"
+    }
+  },
+  "paths": {
+    "coding": { "title": "プログラミングの基礎" },
+    "asd": { "title": "アルゴリズムとデータ構造" },
+    "hacking": { "title": "エシカルハッキング" }
+  },
+  "nav": {
+    "dashboard": "ダッシュボード",
+    "paths": "学習パス",
+    "modules": "モジュール",
+    "labs": "グローバルラボ",
+    "leaderboard": "リーダーボード",
+    "profile": "プロフィール",
+    "certificates": "証明書",
+    "admin": "管理パネル",
+    "login": "ログイン",
+    "logout": "ログアウト"
+  },
+  "leaderboard": {
+    "title": "リーダーボード",
+    "weekly": "週間",
+    "monthly": "月間",
+    "allTime": "全期間"
+  },
+  "auth": {
+    "loginTitle": "お帰りなさい",
+    "loginSubtitle": "アカウントにアクセスするための認証情報を入力してください。",
+    "registerTitle": "アカウントを作成",
+    "registerSubtitle": "Mayleneee.codeに参加して学習を始めましょう。",
+    "loginWithGoogle": "Googleで続行",
+    "loginWithGitHub": "GitHubで続行",
+    "orContinueWith": "またはメールアドレスで続行",
+    "email": "メールアドレス",
+    "emailPlaceholder": "your@email.com",
+    "password": "パスワード",
+    "passwordPlaceholder": "パスワードを入力してください",
+    "forgotPassword": "パスワードをお忘れですか？",
+    "loginButton": "サインイン",
+    "registerButton": "サインアップ",
+    "noAccount": "アカウントを持っていませんか？",
+    "hasAccount": "既にアカウントをお持ちですか？",
+    "signUpLink": "サインアップ",
+    "signInLink": "サインイン",
+    "passwordRequirements": "8文字以上である必要があります",
+    "confirmPassword": "パスワードの確認",
+    "confirmPasswordPlaceholder": "パスワードを繰り返す",
+    "showPassword": "パスワードを表示",
+    "hidePassword": "パスワードを隠す"
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "error": "エラーが発生しました。もう一度お試しください。"
+  }
+}

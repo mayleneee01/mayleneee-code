@@ -1,0 +1,65 @@
+{
+  "dashboard": {
+    "greeting": "Bienvenido, {{name}}",
+    "subtitle": "Continúa tu aprendizaje o explora nuevos módulos.",
+    "stats": {
+      "totalPoints": "Puntos Totales",
+      "modulesCompleted": "Módulos Completados",
+      "labsSolved": "Laboratorios Resueltos",
+      "currentStreak": "Racha Actual"
+    }
+  },
+  "paths": {
+    "coding": { "title": "Fundamentos de Programación" },
+    "asd": { "title": "Algoritmos y Estructuras de Datos" },
+    "hacking": { "title": "Hacking Ético" }
+  },
+  "nav": {
+    "dashboard": "Panel de Control",
+    "paths": "Rutas de Aprendizaje",
+    "modules": "Módulos",
+    "labs": "Laboratorios Globales",
+    "leaderboard": "Tabla de Clasificación",
+    "profile": "Perfil",
+    "certificates": "Certificados",
+    "admin": "Panel de Administración",
+    "login": "Iniciar Sesión",
+    "logout": "Cerrar Sesión",
+    "search": "Buscar módulos..."
+  },
+  "leaderboard": {
+    "title": "Tabla de Clasificación",
+    "weekly": "Semanal",
+    "monthly": "Mensual",
+    "allTime": "Todo el Tiempo"
+  },
+  "auth": {
+    "loginTitle": "Bienvenido de Nuevo",
+    "loginSubtitle": "Ingresa tus credenciales para acceder a tu cuenta.",
+    "registerTitle": "Crear una Cuenta",
+    "registerSubtitle": "Únete a Mayleneee.code y comienza a aprender.",
+    "loginWithGoogle": "Continuar con Google",
+    "loginWithGitHub": "Continuar con GitHub",
+    "orContinueWith": "o continuar con el correo",
+    "email": "Correo Electrónico",
+    "emailPlaceholder": "tu@correo.com",
+    "password": "Contraseña",
+    "passwordPlaceholder": "Ingresa tu contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "loginButton": "Iniciar Sesión",
+    "registerButton": "Registrarse",
+    "noAccount": "¿No tienes una cuenta?",
+    "hasAccount": "¿Ya tienes una cuenta?",
+    "signUpLink": "Registrarse",
+    "signInLink": "Iniciar Sesión",
+    "passwordRequirements": "Debe tener al menos 8 caracteres",
+    "confirmPassword": "Confirmar Contraseña",
+    "confirmPasswordPlaceholder": "Repite tu contraseña",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Ocurrió un error. Por favor, inténtalo de nuevo."
+  }
+}

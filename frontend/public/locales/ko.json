@@ -1,0 +1,65 @@
+{
+  "dashboard": {
+    "greeting": "환영합니다, {{name}}님",
+    "subtitle": "학습을 계속하거나 새로운 학습 모듈을 탐색하세요.",
+    "stats": {
+      "totalPoints": "총 포인트",
+      "modulesCompleted": "완료된 모듈",
+      "labsSolved": "해결된 랩",
+      "currentStreak": "현재 연속 학습"
+    }
+  },
+  "paths": {
+    "coding": { "title": "프로그래밍 기초" },
+    "asd": { "title": "알고리즘 및 자료구조" },
+    "hacking": { "title": "윤리적 해킹" }
+  },
+  "nav": {
+    "dashboard": "대시보드",
+    "paths": "학습 경로",
+    "modules": "모듈",
+    "labs": "글로벌 랩",
+    "leaderboard": "리더보드",
+    "profile": "프로필",
+    "certificates": "인증서",
+    "admin": "관리자 패널",
+    "login": "로그인",
+    "logout": "로그아웃",
+    "search": "모듈 검색..."
+  },
+  "leaderboard": {
+    "title": "리더보드",
+    "weekly": "이번 주",
+    "monthly": "이번 달",
+    "allTime": "전체 기간"
+  },
+  "auth": {
+    "loginTitle": "다시 오신 것을 환영합니다",
+    "loginSubtitle": "계정에 접근하려면 자격 증명을 입력하세요.",
+    "registerTitle": "계정 만들기",
+    "registerSubtitle": "Mayleneee.code에 가입하고 학습을 시작하세요.",
+    "loginWithGoogle": "Google로 계속하기",
+    "loginWithGitHub": "GitHub로 계속하기",
+    "orContinueWith": "또는 이메일로 계속하기",
+    "email": "이메일 주소",
+    "emailPlaceholder": "your@email.com",
+    "password": "비밀번호",
+    "passwordPlaceholder": "비밀번호를 입력하세요",
+    "forgotPassword": "비밀번호를 잊으셨나요?",
+    "loginButton": "로그인",
+    "registerButton": "가입하기",
+    "noAccount": "계정이 없으신가요?",
+    "hasAccount": "이미 계정이 있으신가요?",
+    "signUpLink": "가입하기",
+    "signInLink": "로그인",
+    "passwordRequirements": "8자 이상이어야 합니다",
+    "confirmPassword": "비밀번호 확인",
+    "confirmPasswordPlaceholder": "비밀번호를 다시 입력하세요",
+    "showPassword": "비밀번호 표시",
+    "hidePassword": "비밀번호 숨기기"
+  },
+  "common": {
+    "loading": "로딩 중...",
+    "error": "오류가 발생했습니다. 다시 시도해 주세요."
+  }
+}

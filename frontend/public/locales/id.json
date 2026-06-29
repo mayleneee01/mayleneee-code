@@ -24,7 +24,8 @@
     "certificates": "Sertifikat",
     "admin": "Panel Admin",
     "login": "Masuk",
-    "logout": "Keluar"
+    "logout": "Keluar",
+    "search": "Cari modul..."
   },
   "leaderboard": {
     "title": "Papan Peringkat",

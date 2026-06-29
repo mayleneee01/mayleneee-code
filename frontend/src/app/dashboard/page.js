@@ -227,6 +227,7 @@ export default function Dashboard() {
                   {learningPaths.map((path) => (
                     <div
                       key={path.id}
+                      onClick={() => window.location.href = `/modules/${path.category}`}
                       style={{
                         background: 'var(--bg-secondary)',
                         border: '1px solid var(--border-primary)',

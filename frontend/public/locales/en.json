@@ -24,7 +24,8 @@
     "certificates": "Certificates",
     "admin": "Admin Panel",
     "login": "Login",
-    "logout": "Logout"
+    "logout": "Logout",
+    "search": "Search modules..."
   },
   "leaderboard": {
     "title": "Leaderboard",
