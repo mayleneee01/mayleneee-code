@@ -381,7 +381,7 @@ func HandleOAuthCallback(w http.ResponseWriter, r *http.Request) {
 	conf := getGoogleOAuthConfig()
 	token, err := conf.Exchange(context.Background(), code)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "oauth_exchange_failed", "Failed to exchange code for token")
+		writeError(w, http.StatusInternalServerError, "oauth_exchange_failed", fmt.Sprintf("Failed to exchange code for token: %v", err))
 		return
 	}
 
