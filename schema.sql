@@ -15,15 +15,17 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,
     oauth_provider VARCHAR(50),
     oauth_id VARCHAR(255),
-    role VARCHAR(20) NOT NULL DEFAULT 'student',
+    role VARCHAR(20) NOT NULL DEFAULT 'student' CONSTRAINT chk_users_role CHECK (role IN ('student', 'instructor', 'admin', 'super_admin')),
     tier VARCHAR(20) NOT NULL DEFAULT 'free' CHECK (tier IN ('free', 'premium', 'enterprise')),
     locale VARCHAR(10) NOT NULL DEFAULT 'en',
     theme VARCHAR(10) NOT NULL DEFAULT 'light',
+    is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_username ON users(username);
+CREATE UNIQUE INDEX idx_users_oauth ON users(oauth_provider, oauth_id) WHERE oauth_provider IS NOT NULL AND oauth_id IS NOT NULL;
 -- ==========================================
 -- MODULES TABLE (Learning Paths)
 -- ==========================================
