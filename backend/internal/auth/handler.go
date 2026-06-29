@@ -331,9 +331,9 @@ func HandleGetUserProgress(w http.ResponseWriter, r *http.Request) {
 
 func getGoogleOAuthConfig() *oauth2.Config {
 	return &oauth2.Config{
-		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
-		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
-		RedirectURL:  os.Getenv("GOOGLE_REDIRECT_URI"),
+		ClientID:     strings.TrimSpace(os.Getenv("GOOGLE_CLIENT_ID")),
+		ClientSecret: strings.TrimSpace(os.Getenv("GOOGLE_CLIENT_SECRET")),
+		RedirectURL:  strings.TrimSpace(os.Getenv("GOOGLE_REDIRECT_URI")),
 		Scopes: []string{
 			"https://www.googleapis.com/auth/userinfo.email",
 			"https://www.googleapis.com/auth/userinfo.profile",
