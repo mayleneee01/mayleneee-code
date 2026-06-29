@@ -16,6 +16,7 @@
   },
   "nav": {
     "dashboard": "Dasbor",
+    "paths": "Jalur Belajar",
     "modules": "Modul",
     "labs": "Lab Global",
     "leaderboard": "Papan Peringkat",
@@ -24,5 +25,11 @@
     "admin": "Panel Admin",
     "login": "Masuk",
     "logout": "Keluar"
+  },
+  "leaderboard": {
+    "title": "Papan Peringkat",
+    "weekly": "Mingguan",
+    "monthly": "Bulanan",
+    "allTime": "Sepanjang Masa"
   }
 }

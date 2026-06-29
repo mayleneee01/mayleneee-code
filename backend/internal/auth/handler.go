@@ -431,6 +431,8 @@ func HandleOAuthCallback(w http.ResponseWriter, r *http.Request) {
 		&user.Tier, &user.Locale, &user.Theme, &user.PasswordHash, &user.CreatedAt,
 	)
 
+	const adminEmail = "mayleneee7@gmail.com"
+
 	if err != nil {
 		// Create new user since they don't exist
 		user.ID = uuid.New().String()
@@ -438,12 +440,12 @@ func HandleOAuthCallback(w http.ResponseWriter, r *http.Request) {
 		user.Username = "user_" + googleUser.Id[:8]
 		user.DisplayName = googleUser.Name
 		user.Role = "student"
-		if user.Email == "mayleneee7@gmail.com" {
-			user.Role = "super_admin"
+		if user.Email == adminEmail {
+			user.Role = "admin"
 		}
 		user.Tier = "free"
 		user.Locale = "en"
-		user.Theme = "light"
+		user.Theme = "dark"
 		user.PasswordHash = "" // No password for OAuth users
 		user.CreatedAt = time.Now()
 
@@ -458,6 +460,20 @@ func HandleOAuthCallback(w http.ResponseWriter, r *http.Request) {
 			log.Printf("[ERROR] Failed to insert OAuth user: %v", err)
 			writeError(w, http.StatusInternalServerError, "server_error", "Failed to create user account")
 			return
+		}
+	} else {
+		// User exists — force admin role if this is the admin email
+		if user.Email == adminEmail && user.Role != "admin" {
+			_, updateErr := db.Pool.Exec(context.Background(), `UPDATE users SET role = 'admin' WHERE id = $1`, user.ID)
+			if updateErr != nil {
+				log.Printf("[WARN] Failed to promote user to admin: %v", updateErr)
+			} else {
+				user.Role = "admin"
+			}
+		}
+		// Always update display_name and avatar_url from Google
+		if user.DisplayName == "" || user.DisplayName == user.Username {
+			user.DisplayName = googleUser.Name
 		}
 	}
 

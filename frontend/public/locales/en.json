@@ -16,6 +16,7 @@
   },
   "nav": {
     "dashboard": "Dashboard",
+    "paths": "Learning Paths",
     "modules": "Modules",
     "labs": "Global Labs",
     "leaderboard": "Leaderboard",
@@ -24,5 +25,11 @@
     "admin": "Admin Panel",
     "login": "Login",
     "logout": "Logout"
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "allTime": "All Time"
   }
 }
