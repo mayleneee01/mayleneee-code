@@ -96,6 +96,8 @@ func main() {
 
 			r.Post("/register", auth.HandleRegister)
 			r.Post("/login", auth.HandleLogin)
+			r.Post("/forgot-password", auth.HandleForgotPassword)
+			r.Post("/reset-password", auth.HandleResetPassword)
 			r.Get("/oauth/{provider}", auth.HandleOAuthRedirect)
 			r.Get("/oauth/{provider}/callback", auth.HandleOAuthCallback)
 		})
