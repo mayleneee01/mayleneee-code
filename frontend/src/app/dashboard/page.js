@@ -103,7 +103,9 @@ function IconLayers() {
   );
 }
 
-export default function DashboardPage() {
+import MainLayout from '../../components/MainLayout';
+
+export default function Dashboard() {
   const { t } = useI18n();
   const [stats, setStats] = useState({
     totalPoints: 0,
@@ -199,126 +201,145 @@ export default function DashboardPage() {
   ];
 
   return (
-    <>
-      <Navbar currentPage="dashboard" />
+    <MainLayout currentPage="dashboard">
       <main className="dashboard">
-        <div className="dashboard-content">
+        <div className="dashboard-content" style={{ maxWidth: '1400px', margin: '0 auto', padding: 'var(--space-6)' }}>
           {/* Header */}
-          <div className="dashboard-header animate-fade-in">
-            <h1 className="dashboard-greeting" id="dashboard-greeting">
-              {t('dashboard.greeting', { name: 'Maylene' })}
+          <div className="dashboard-header animate-fade-in" style={{ marginBottom: 'var(--space-8)' }}>
+            <h1 className="dashboard-greeting" id="dashboard-greeting" style={{ fontSize: 'var(--text-4xl)', fontWeight: 800 }}>
+              {t('dashboard.greeting', { name: user?.display_name || user?.username || 'Hacker' })}
             </h1>
-            <p className="dashboard-subtext">{t('dashboard.subtitle')}</p>
+            <p className="dashboard-subtext" style={{ color: 'var(--text-tertiary)', fontSize: 'var(--text-lg)' }}>{t('dashboard.subtitle')}</p>
           </div>
 
-          {/* Stats Grid */}
-          <div className="stats-grid stagger-children">
-            {statCards.map((stat, index) => (
-              <div key={index} className="stat-card" id={`stat-card-${index}`}>
-                <div className={`stat-icon ${stat.iconClass}`}>
-                  {stat.icon}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: 'var(--space-8)', alignItems: 'start' }}>
+            
+            {/* Left Column: Enrolled Paths & Modules */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
+              
+              <section>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+                  <h2 style={{ fontSize: 'var(--text-xl)' }}>Active Learning Paths</h2>
+                  <span style={{ color: 'var(--text-tertiary)', fontSize: 'var(--text-sm)' }}>{learningPaths.length} Paths Available</span>
                 </div>
-                <div className="stat-value">{stat.value}</div>
-                <div className="stat-label">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Main Content Grid */}
-          <div className="section-grid">
-            {/* Left Column: Learning Paths + Terminal */}
-            <div>
-              <h2 className="section-title">{t('dashboard.learningPaths')}</h2>
-              <div className="path-cards stagger-children">
-                {learningPaths.map((path) => (
-                  <div
-                    key={path.id}
-                    className={`path-card path-card-${path.category}`}
-                    id={`path-card-${path.id}`}
-                  >
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+                  {learningPaths.map((path) => (
                     <div
-                      className="path-card-icon"
+                      key={path.id}
                       style={{
-                        backgroundColor: path.category === 'coding'
-                          ? 'var(--color-primary-100)'
-                          : path.category === 'asd'
-                            ? 'var(--color-accent-100)'
-                            : 'var(--color-success-100)',
-                        color: path.category === 'coding'
-                          ? 'var(--color-primary-600)'
-                          : path.category === 'asd'
-                            ? 'var(--color-accent-600)'
-                            : 'var(--color-success-600)',
-                      }}
-                    >
-                      {path.icon === 'code' ? <IconCode /> : path.icon === 'brain' ? <IconBrain /> : <IconShield />}
-                    </div>
-                    <h3 className="path-card-title">
-                      {t(`paths.${path.id}.title`) || path.id.toUpperCase()}
-                    </h3>
-                    <p className="path-card-desc">
-                      {t(`paths.${path.id}.description`) || "Explore this learning path."}
-                    </p>
-
-                    {/* Progress Bar */}
-                    <div style={{ marginBottom: 'var(--space-3)' }}>
-                      <div style={{
+                        background: 'var(--bg-secondary)',
+                        border: '1px solid var(--border-primary)',
+                        borderRadius: 'var(--radius-lg)',
+                        padding: 'var(--space-5)',
                         display: 'flex',
-                        justifyContent: 'space-between',
-                        fontSize: 'var(--text-xs)',
-                        color: 'var(--text-tertiary)',
-                        marginBottom: 'var(--space-1)',
+                        alignItems: 'center',
+                        gap: 'var(--space-5)',
+                        transition: 'transform 0.2s',
+                        cursor: 'pointer'
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                      onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                    >
+                      <div style={{ 
+                        width: '60px', height: '60px', borderRadius: '12px', 
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        background: path.category === 'coding' ? 'rgba(59, 130, 246, 0.1)' : path.category === 'asd' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                        color: path.category === 'coding' ? '#3b82f6' : path.category === 'asd' ? '#f59e0b' : '#10b981'
                       }}>
-                        <span>{t('common.inProgress')}</span>
-                        <span>{path.progress}%</span>
+                        {path.icon === 'code' ? <IconCode /> : path.icon === 'brain' ? <IconBrain /> : <IconShield />}
                       </div>
-                      <div className="progress-bar">
-                        <div
-                          className={`progress-bar-fill ${path.category === 'hacking' ? 'progress-bar-fill-success' : ''}`}
-                          style={{ width: `${path.progress}%` }}
-                        />
+                      
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-1)' }}>
+                          <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px', background: 'var(--bg-tertiary)', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
+                            {path.category}
+                          </span>
+                        </div>
+                        <h3 style={{ fontSize: 'var(--text-lg)', marginBottom: 'var(--space-1)' }}>{t(`paths.${path.id}.title`) || path.id.toUpperCase()}</h3>
+                        <div style={{ display: 'flex', gap: 'var(--space-4)', fontSize: 'var(--text-sm)', color: 'var(--text-tertiary)' }}>
+                          <span>{path.modules} Modules</span>
+                          <span>{path.estimatedHours} Hours</span>
+                        </div>
+                      </div>
+                      
+                      <div style={{ width: '150px', textAlign: 'right' }}>
+                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginBottom: 'var(--space-1)' }}>{path.progress}% Complete</div>
+                        <div style={{ width: '100%', height: '6px', background: 'var(--bg-tertiary)', borderRadius: '3px', overflow: 'hidden' }}>
+                          <div style={{ width: `${path.progress}%`, height: '100%', background: 'var(--color-primary-500)' }}></div>
+                        </div>
                       </div>
                     </div>
+                  ))}
+                </div>
+              </section>
 
-                    {/* Meta */}
-                    <div className="path-card-meta">
-                      <span className="path-card-meta-item">
-                        <IconLayers />
-                        <span>{path.modules} {t('common.modules')}</span>
-                      </span>
-                      <span className="path-card-meta-item">
-                        <IconClock />
-                        <span>{path.estimatedHours}h</span>
-                      </span>
-                      <span style={{ marginLeft: 'auto' }}>
-                        <a
-                          href={`/modules/${path.id}`}
-                          className="btn btn-sm btn-ghost"
-                          style={{ fontSize: 'var(--text-xs)', padding: 'var(--space-1) var(--space-2)' }}
-                        >
-                          <span>{t('common.viewAll')}</span>
-                          <IconArrowRight />
-                        </a>
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <section>
+                <Leaderboard />
+              </section>
 
-              {/* Lab Terminal Preview */}
-              <div style={{ marginTop: 'var(--space-8)' }}>
-                <h2 className="section-title">{t('nav.labs')}</h2>
-                <LabTerminal labName="HTB: Blue" status="connected" />
-              </div>
             </div>
 
-            {/* Right Column: Leaderboard */}
-            <div>
-              <Leaderboard />
+            {/* Right Column: User Profile Card (HTB Style) */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+              
+              {/* Profile Card */}
+              <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-primary)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-6)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-6)' }}>
+                  <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 700 }}>{user?.display_name || user?.username || 'Hacker'}</h2>
+                  <div style={{ width: '40px', height: '40px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <IconTarget />
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-6)', paddingBottom: 'var(--space-4)', borderBottom: '1px solid var(--border-primary)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                    <IconTrendUp /> <span style={{ fontWeight: 600 }}>{stats.totalPoints}</span> <span style={{ color: 'var(--text-tertiary)', fontSize: 'var(--text-sm)' }}>pts</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                    <IconZap /> <span style={{ fontWeight: 600 }}>{stats.labsSolved}</span> <span style={{ color: 'var(--text-tertiary)', fontSize: 'var(--text-sm)' }}>labs</span>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: 'var(--space-4)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-2)' }}>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', fontWeight: 600 }}>Level {Math.floor(stats.totalPoints / 100) + 1}</span>
+                    <span style={{ color: 'var(--text-tertiary)', fontSize: 'var(--text-xs)' }}>{stats.totalPoints % 100}/100</span>
+                  </div>
+                  <div style={{ width: '100%', height: '8px', background: 'var(--bg-tertiary)', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div style={{ width: `${stats.totalPoints % 100}%`, height: '100%', background: '#a855f7' }}></div>
+                  </div>
+                </div>
+
+                <div style={{ background: 'var(--bg-tertiary)', padding: 'var(--space-3)', borderRadius: 'var(--radius-md)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', marginBottom: '2px' }}>Rank</div>
+                    <div style={{ fontWeight: 700 }}>Apprentice</div>
+                  </div>
+                  <div style={{ color: 'var(--text-tertiary)' }}>
+                    ★★★
+                  </div>
+                </div>
+              </div>
+
+              {/* Weekly Streak Card */}
+              <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-primary)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-6)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)' }}>
+                  <h3 style={{ fontSize: 'var(--text-md)', color: 'var(--text-secondary)' }}>Weekly Streak</h3>
+                  <IconFlame />
+                </div>
+                <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 800, marginBottom: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                  <span style={{ color: '#ef4444' }}>🔥</span> {stats.currentStreak} weeks
+                </div>
+                <div style={{ width: '100%', height: '4px', background: 'var(--bg-tertiary)', borderRadius: '2px', overflow: 'hidden' }}>
+                  <div style={{ width: `${Math.min(100, stats.currentStreak * 10)}%`, height: '100%', background: '#ef4444' }}></div>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
       </main>
-    </>
+    </MainLayout>
   );
 }

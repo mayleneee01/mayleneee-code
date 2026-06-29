@@ -81,6 +81,16 @@ func handleHackingTerminal(labID, command string) ExecuteResponse {
 		return ExecuteResponse{Output: "root", Success: false}
 	case "pwd":
 		return ExecuteResponse{Output: "/home/hacker", Success: false}
+	case "nmap":
+		if len(cmdParts) > 1 {
+			target := cmdParts[len(cmdParts)-1]
+			output := fmt.Sprintf("Starting Nmap 7.93 ( https://nmap.org ) at %s\nNmap scan report for %s\nHost is up (0.042s latency).\nNot shown: 998 closed tcp ports (reset)\nPORT   STATE SERVICE\n22/tcp open  ssh\n80/tcp open  http\n\nNmap done: 1 IP address (1 host up) scanned in 1.42 seconds", time.Now().Format("2006-01-02 15:04 MST"), target)
+			return ExecuteResponse{Output: output, Success: false}
+		}
+		return ExecuteResponse{Output: "nmap: missing target\nUsage: nmap [Scan Type(s)] [Options] {target specification}", Success: false}
+	case "gobuster":
+		output := "===============================================================\nGobuster v3.5\nby OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)\n===============================================================\n[+] Url:                     http://10.10.10.40\n[+] Method:                  GET\n[+] Threads:                 10\n[+] Wordlist:                /usr/share/wordlists/dirb/common.txt\n===============================================================\n2025/10/12 12:00:00 Starting gobuster in directory enumeration mode\n===============================================================\n/admin                (Status: 301) [Size: 314] [--> http://10.10.10.40/admin/]\n/css                  (Status: 301) [Size: 312] [--> http://10.10.10.40/css/]\n/js                   (Status: 301) [Size: 311] [--> http://10.10.10.40/js/]\n/secret_admin_panel_xyz (Status: 200) [Size: 1042]\n===============================================================\n2025/10/12 12:00:05 Finished\n==============================================================="
+		return ExecuteResponse{Output: output, Success: false}
 	case "cat":
 		if len(cmdParts) > 1 && cmdParts[1] == "flag.txt" {
 			// Generate the MC{...} flag based on labID

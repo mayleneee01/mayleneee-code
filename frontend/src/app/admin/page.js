@@ -1,146 +1,188 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Navbar from '../../components/Navbar';
-import { Settings, Plus, LayoutList, TerminalSquare, Search, Trash2, Edit } from 'lucide-react';
+import MainLayout from '../../components/MainLayout';
+import { Shield, Plus, Users, Save, CheckCircle } from 'lucide-react';
 
-export default function AdminPage() {
-  const router = useRouter();
+export default function AdminPanel() {
+  const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('modules');
-  const [isAuthorized, setIsAuthorized] = useState(false);
-
-  // Route Protection: Check if user is admin or super_admin
-  useEffect(() => {
-    const userStr = localStorage.getItem('user');
-    if (!userStr) {
-      router.push('/login');
-      return;
-    }
-    
-    try {
-      const user = JSON.parse(userStr);
-      if (user.role === 'admin' || user.role === 'super_admin') {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setIsAuthorized(true);
-      } else {
-        router.push('/dashboard');
-      }
-    } catch (e) {
-      router.push('/login');
-    }
-  }, [router]);
-
   
-  // Mock data for display
-  const [modules] = useState([
-    { id: 'web-fundamentals', title: 'Web Security Fundamentals', category: 'hacking', difficulty: 'beginner', isPublished: true },
-    { id: 'sql-injection-mastery', title: 'SQL Injection Mastery', category: 'hacking', difficulty: 'intermediate', isPublished: true },
-  ]);
+  // Promotion State
+  const [promoteUserId, setPromoteUserId] = useState('');
+  const [promoteStatus, setPromoteStatus] = useState('');
 
-  if (!isAuthorized) {
-    return (
-      <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="loader" style={{ width: '40px', height: '40px', borderWidth: '4px' }}></div>
-      </div>
-    );
+  // Module State
+  const [moduleForm, setModuleForm] = useState({
+    id: '', title: '', description: '', category: 'coding', difficulty: 'beginner',
+    access_tier: 'free', points_reward: 100, order_index: 1, is_published: true
+  });
+  const [moduleStatus, setModuleStatus] = useState('');
+
+  useEffect(() => {
+    const userStr = localStorage.getItem('mayleneee-user');
+    if (userStr) {
+      try {
+        const u = JSON.parse(userStr);
+        if (u.role !== 'admin') {
+          window.location.href = '/dashboard'; // Redirect non-admins
+        } else {
+          setUser(u);
+        }
+      } catch (e) {
+        window.location.href = '/login';
+      }
+    } else {
+      window.location.href = '/login';
+    }
+  }, []);
+
+  async function handlePromote(e) {
+    e.preventDefault();
+    setPromoteStatus('Promoting...');
+    try {
+      const token = localStorage.getItem('mayleneee-token');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/v1/admin/users/${promoteUserId}/promote`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setPromoteStatus('User promoted successfully!');
+        setPromoteUserId('');
+      } else {
+        const data = await res.json();
+        setPromoteStatus(`Error: ${data.error}`);
+      }
+    } catch (err) {
+      setPromoteStatus(`Error: ${err.message}`);
+    }
+    setTimeout(() => setPromoteStatus(''), 4000);
   }
 
+  async function handleCreateModule(e) {
+    e.preventDefault();
+    setModuleStatus('Creating...');
+    try {
+      const token = localStorage.getItem('mayleneee-token');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/v1/admin/modules`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ...moduleForm,
+          points_reward: parseInt(moduleForm.points_reward, 10),
+          order_index: parseInt(moduleForm.order_index, 10),
+          is_published: moduleForm.is_published === 'true' || moduleForm.is_published === true
+        })
+      });
+      if (res.ok) {
+        setModuleStatus('Module created successfully!');
+        setModuleForm({ ...moduleForm, id: '', title: '', description: '' }); // Reset text fields
+      } else {
+        const data = await res.json();
+        setModuleStatus(`Error: ${data.error}`);
+      }
+    } catch (err) {
+      setModuleStatus(`Error: ${err.message}`);
+    }
+    setTimeout(() => setModuleStatus(''), 4000);
+  }
+
+  if (!user) return null;
+
   return (
-    <div className="layout">
-      <Navbar currentPage="dashboard" />
-      
-      <main className="main-content" style={{ display: 'flex', gap: 'var(--space-8)', padding: 'var(--space-6)' }}>
-        
-        {/* Sidebar */}
-        <aside style={{ width: '250px', flexShrink: 0 }}>
-          <div className="card" style={{ padding: 'var(--space-4)' }}>
-            <h2 style={{ fontSize: '0.875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)', marginBottom: 'var(--space-4)', paddingLeft: 'var(--space-2)' }}>
-              Admin Panel
-            </h2>
-            
-            <nav style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
-              <button 
-                onClick={() => setActiveTab('modules')}
-                style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', padding: 'var(--space-3) var(--space-4)', borderRadius: 'var(--radius-lg)', background: activeTab === 'modules' ? 'var(--color-primary-50)' : 'transparent', color: activeTab === 'modules' ? 'var(--color-primary-600)' : 'var(--text-secondary)', fontWeight: activeTab === 'modules' ? 600 : 500, border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s' }}
-              >
-                <LayoutList size={18} />
-                Manage Modules
-              </button>
-              
-              <button 
-                onClick={() => setActiveTab('labs')}
-                style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', padding: 'var(--space-3) var(--space-4)', borderRadius: 'var(--radius-lg)', background: activeTab === 'labs' ? 'var(--color-primary-50)' : 'transparent', color: activeTab === 'labs' ? 'var(--color-primary-600)' : 'var(--text-secondary)', fontWeight: activeTab === 'labs' ? 600 : 500, border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s' }}
-              >
-                <TerminalSquare size={18} />
-                Manage Labs
-              </button>
-              
-              <button 
-                style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', padding: 'var(--space-3) var(--space-4)', borderRadius: 'var(--radius-lg)', background: 'transparent', color: 'var(--text-secondary)', fontWeight: 500, border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s' }}
-              >
-                <Settings size={18} />
-                Settings
-              </button>
-            </nav>
-          </div>
-        </aside>
-
-        {/* Main Content Area */}
-        <div style={{ flexGrow: 1 }}>
-          <div className="card" style={{ padding: 'var(--space-6)', minHeight: '600px' }}>
-            
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-6)' }}>
-              <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                {activeTab === 'modules' ? 'Modules' : 'Hands-on Labs'}
-              </h1>
-              <button className="btn btn-primary" style={{ padding: '0.5rem 1rem', borderRadius: 'var(--radius-lg)' }}>
-                <Plus size={18} />
-                <span>Create New</span>
-              </button>
-            </div>
-
-            <div className="input-wrapper" style={{ marginBottom: 'var(--space-6)', maxWidth: '400px' }}>
-              <span className="input-icon-left"><Search size={18} strokeWidth={2} /></span>
-              <input type="text" placeholder={`Search ${activeTab}...`} className="input" />
-            </div>
-
-            {/* Table Mockup */}
-            <div style={{ overflowX: 'auto', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-secondary)' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                <thead style={{ backgroundColor: 'var(--color-gray-50)', borderBottom: '1px solid var(--border-secondary)' }}>
-                  <tr>
-                    <th style={{ padding: 'var(--space-4)', fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-secondary)' }}>ID</th>
-                    <th style={{ padding: 'var(--space-4)', fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Title</th>
-                    <th style={{ padding: 'var(--space-4)', fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Category</th>
-                    <th style={{ padding: 'var(--space-4)', fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Status</th>
-                    <th style={{ padding: 'var(--space-4)', fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-secondary)', textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {modules.map(mod => (
-                    <tr key={mod.id} style={{ borderBottom: '1px solid var(--border-secondary)' }}>
-                      <td style={{ padding: 'var(--space-4)', fontSize: '0.875rem', fontFamily: 'monospace' }}>{mod.id}</td>
-                      <td style={{ padding: 'var(--space-4)', fontSize: '0.875rem', fontWeight: 500 }}>{mod.title}</td>
-                      <td style={{ padding: 'var(--space-4)', fontSize: '0.875rem', textTransform: 'capitalize' }}>{mod.category}</td>
-                      <td style={{ padding: 'var(--space-4)', fontSize: '0.875rem' }}>
-                        <span style={{ display: 'inline-flex', padding: '2px 8px', borderRadius: 'var(--radius-full)', backgroundColor: mod.isPublished ? 'var(--color-success-100)' : 'var(--color-gray-100)', color: mod.isPublished ? 'var(--color-success-700)' : 'var(--text-tertiary)', fontSize: '0.75rem', fontWeight: 600 }}>
-                          {mod.isPublished ? 'Published' : 'Draft'}
-                        </span>
-                      </td>
-                      <td style={{ padding: 'var(--space-4)', display: 'flex', gap: 'var(--space-2)', justifyContent: 'flex-end' }}>
-                        <button className="btn btn-ghost btn-icon" style={{ padding: 'var(--space-2)' }}><Edit size={16} /></button>
-                        <button className="btn btn-ghost btn-icon" style={{ padding: 'var(--space-2)', color: 'var(--color-danger-500)' }}><Trash2 size={16} /></button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
+    <MainLayout currentPage="admin">
+      <main className="admin-page" style={{ padding: 'var(--space-8) var(--space-6)', maxWidth: '1000px', margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: 'var(--space-8)' }}>
+          <Shield size={32} style={{ color: '#ef4444' }} />
+          <div>
+            <h1 style={{ fontSize: 'var(--text-3xl)' }}>Admin Control Panel</h1>
+            <p style={{ color: 'var(--text-tertiary)' }}>Manage platform content and users.</p>
           </div>
         </div>
+
+        <div style={{ display: 'flex', gap: 'var(--space-4)', marginBottom: 'var(--space-8)' }}>
+          <button className={`btn ${activeTab === 'modules' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveTab('modules')}>
+            <Plus size={16} /> Create Module
+          </button>
+          <button className={`btn ${activeTab === 'users' ? 'btn-primary' : 'btn-outline'}`} onClick={() => setActiveTab('users')}>
+            <Users size={16} /> Promote User
+          </button>
+        </div>
+
+        {activeTab === 'modules' && (
+          <div style={{ background: 'var(--bg-secondary)', padding: 'var(--space-6)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-primary)' }}>
+            <h2 style={{ fontSize: 'var(--text-xl)', marginBottom: 'var(--space-6)' }}>Create New Module</h2>
+            <form onSubmit={handleCreateModule} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                <label className="form-label">Module ID (e.g. m-htb-1)</label>
+                <input className="form-input" required value={moduleForm.id} onChange={e => setModuleForm({...moduleForm, id: e.target.value})} />
+              </div>
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                <label className="form-label">Title</label>
+                <input className="form-input" required value={moduleForm.title} onChange={e => setModuleForm({...moduleForm, title: e.target.value})} />
+              </div>
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                <label className="form-label">Description</label>
+                <textarea className="form-input" rows={3} required value={moduleForm.description} onChange={e => setModuleForm({...moduleForm, description: e.target.value})} />
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">Category</label>
+                <select className="form-input" value={moduleForm.category} onChange={e => setModuleForm({...moduleForm, category: e.target.value})}>
+                  <option value="coding">Coding</option>
+                  <option value="asd">Algorithm & Data Structures</option>
+                  <option value="hacking">Hacking</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Difficulty</label>
+                <select className="form-input" value={moduleForm.difficulty} onChange={e => setModuleForm({...moduleForm, difficulty: e.target.value})}>
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Points Reward</label>
+                <input type="number" className="form-input" required value={moduleForm.points_reward} onChange={e => setModuleForm({...moduleForm, points_reward: e.target.value})} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Order Index</label>
+                <input type="number" className="form-input" required value={moduleForm.order_index} onChange={e => setModuleForm({...moduleForm, order_index: e.target.value})} />
+              </div>
+
+              <div style={{ gridColumn: '1 / -1', marginTop: 'var(--space-4)' }}>
+                <button type="submit" className="btn btn-primary" style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '8px' }}>
+                  <Save size={18} /> Create Module
+                </button>
+                {moduleStatus && <p style={{ marginTop: 'var(--space-4)', textAlign: 'center', color: moduleStatus.includes('Error') ? '#ef4444' : '#10b981' }}>{moduleStatus}</p>}
+              </div>
+            </form>
+          </div>
+        )}
+
+        {activeTab === 'users' && (
+          <div style={{ background: 'var(--bg-secondary)', padding: 'var(--space-6)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-primary)' }}>
+            <h2 style={{ fontSize: 'var(--text-xl)', marginBottom: 'var(--space-6)' }}>Promote to Admin</h2>
+            <p style={{ color: 'var(--text-tertiary)', marginBottom: 'var(--space-4)' }}>Enter the User ID (UUID) of the user you want to grant admin privileges.</p>
+            <form onSubmit={handlePromote}>
+              <div className="form-group">
+                <label className="form-label">User ID (UUID)</label>
+                <input type="text" className="form-input" required value={promoteUserId} onChange={e => setPromoteUserId(e.target.value)} placeholder="e.g. 550e8400-e29b-41d4-a716-446655440000" />
+              </div>
+              <button type="submit" className="btn btn-primary" style={{ marginTop: 'var(--space-2)' }}>
+                Promote User
+              </button>
+              {promoteStatus && <p style={{ marginTop: 'var(--space-4)', color: promoteStatus.includes('Error') ? '#ef4444' : '#10b981' }}>{promoteStatus}</p>}
+            </form>
+          </div>
+        )}
+
       </main>
-    </div>
+    </MainLayout>
   );
 }

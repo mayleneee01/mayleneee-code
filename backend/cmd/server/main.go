@@ -111,8 +111,8 @@ func main() {
 			r.Route("/users/{userID}", func(r chi.Router) {
 				r.Use(middleware.OwnershipCheck("userID"))
 				r.Get("/progress", auth.HandleGetUserProgress)
+				r.Put("/", users.HandleUpdateProfile) // The parameter is in the URL, but the router passes it down
 			})
-
 			// User management (admin or self)
 			userLogger := log.New(os.Stdout, "[USERS] ", log.LstdFlags)
 			userHandler := users.NewHandler(db.Pool, userLogger)
@@ -136,6 +136,7 @@ func main() {
 				// r.Use(middleware.RequireRole("admin"))
 				r.Post("/modules", admin.HandleCreateModule)
 				r.Post("/labs", admin.HandleCreateLab)
+				r.Post("/users/{id}/promote", admin.HandlePromoteUser)
 			})
 		})
 	})
