@@ -15,7 +15,7 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,
     oauth_provider VARCHAR(50),
     oauth_id VARCHAR(255),
-    role VARCHAR(20) NOT NULL DEFAULT 'student' CHECK (role IN ('student', 'instructor', 'admin', 'super_admin')),
+    role VARCHAR(20) NOT NULL DEFAULT 'student',
     tier VARCHAR(20) NOT NULL DEFAULT 'free' CHECK (tier IN ('free', 'premium', 'enterprise')),
     locale VARCHAR(10) NOT NULL DEFAULT 'en',
     theme VARCHAR(10) NOT NULL DEFAULT 'light',
