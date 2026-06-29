@@ -15,6 +15,7 @@ export default function Sidebar({ isOpen, setIsOpen, currentPage }) {
       try {
         const u = JSON.parse(userStr);
         if (u.role === 'admin') {
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setIsAdmin(true);
         }
       } catch (e) {}

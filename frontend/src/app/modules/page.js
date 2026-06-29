@@ -19,6 +19,15 @@ function ModulesContent() {
     { id: 'hacking', category: 'hacking', icon: <Shield size={24} />, title: 'Ethical Hacking', description: 'Become a cybersecurity expert through hands-on penetration testing.', modules: 0, estimatedHours: 0, progress: 0 },
   ]);
 
+  function updatePathsOnlyCounts(counts) {
+      setLearningPaths(prev => prev.map(p => ({
+          ...p,
+          modules: counts[p.category] || 0,
+          estimatedHours: (counts[p.category] || 0) * 2,
+          progress: 0
+      })));
+  }
+
   useEffect(() => {
     // 1. Fetch modules to calculate path counts
     fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/v1/modules`)
@@ -62,14 +71,7 @@ function ModulesContent() {
     }).catch(err => console.error("Failed to fetch modules:", err));
   }, []);
 
-  function updatePathsOnlyCounts(counts) {
-      setLearningPaths(prev => prev.map(p => ({
-          ...p,
-          modules: counts[p.category] || 0,
-          estimatedHours: (counts[p.category] || 0) * 2,
-          progress: 0
-      })));
-  }
+
 
   const filteredPaths = learningPaths.filter(path => {
     if (!searchQuery) return true;
@@ -92,7 +94,7 @@ function ModulesContent() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: 'var(--space-6)' }}>
           {filteredPaths.length === 0 && (
-            <p style={{ color: 'var(--text-tertiary)' }}>No learning paths found for "{searchQuery}".</p>
+            <p style={{ color: 'var(--text-tertiary)' }}>No learning paths found for &quot;{searchQuery}&quot;.</p>
           )}
           {filteredPaths.map((path) => (
             <Link href={`/modules/${path.id}`} key={path.id} style={{ textDecoration: 'none', color: 'inherit' }}>

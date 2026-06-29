@@ -9,8 +9,18 @@ export default function CertificatesPage() {
   const [certificates, setCertificates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  function buildCertificates(u, pts) {
+    const certs = [
+      { id: 'CERT-C123', path: 'Coding Fundamentals', slug: 'coding', date: '2025-10-12', earned: pts >= 100 },
+      { id: 'CERT-A456', path: 'Algorithms & Data Structures', slug: 'asd', date: '2025-11-05', earned: pts >= 200 },
+      { id: 'CERT-H789', path: 'Ethical Hacking', slug: 'hacking', date: '2026-01-20', earned: pts >= 300 }
+    ];
+    setCertificates(certs);
+    setLoading(false);
+  }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     const userStr = localStorage.getItem('mayleneee-user');
     const token = localStorage.getItem('mayleneee-token');
@@ -22,6 +32,7 @@ export default function CertificatesPage() {
 
     try {
       const u = JSON.parse(userStr);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUser(u);
       
       fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/v1/users/${u.id}/progress`, {
@@ -45,15 +56,6 @@ export default function CertificatesPage() {
     }
   }, []);
 
-  function buildCertificates(u, pts) {
-    const certs = [
-      { id: 'CERT-C123', path: 'Coding Fundamentals', slug: 'coding', date: '2025-10-12', earned: pts >= 100 },
-      { id: 'CERT-A456', path: 'Algorithms & Data Structures', slug: 'asd', date: '2025-11-05', earned: pts >= 200 },
-      { id: 'CERT-H789', path: 'Ethical Hacking', slug: 'hacking', date: '2026-01-20', earned: pts >= 300 }
-    ];
-    setCertificates(certs);
-    setLoading(false);
-  }
 
   function handleDownload(e, cert) {
     e.stopPropagation();

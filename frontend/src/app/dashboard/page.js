@@ -129,6 +129,7 @@ export default function Dashboard() {
     if (userStr && token) {
       try {
         const u = JSON.parse(userStr);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setUser(u);
         
         // 2. Fetch progress from API

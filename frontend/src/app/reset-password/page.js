@@ -17,7 +17,8 @@ function ResetForm() {
 
   useEffect(() => {
     if (!token) {
-      setStatus('invalid_token');
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setStatus("invalid_token");
       setMessage('This reset link is missing a token. Please request a new one.');
     }
   }, [token]);

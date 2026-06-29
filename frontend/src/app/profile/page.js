@@ -17,6 +17,7 @@ export default function ProfilePage() {
   const fileInputRef = useRef(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     const userStr = localStorage.getItem('mayleneee-user');
     const token = localStorage.getItem('mayleneee-token');

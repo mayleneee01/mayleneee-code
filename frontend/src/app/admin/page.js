@@ -27,6 +27,7 @@ export default function AdminPanel() {
         if (u.role !== 'admin') {
           window.location.href = '/dashboard'; // Redirect non-admins
         } else {
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setUser(u);
         }
       } catch (e) {
