@@ -23,6 +23,7 @@ import (
 	"mayleneee-code/backend/internal/db"
 	"mayleneee-code/backend/internal/middleware"
 	"mayleneee-code/backend/internal/modules"
+	"mayleneee-code/backend/internal/users"
 )
 
 func main() {
@@ -110,6 +111,12 @@ func main() {
 				r.Use(middleware.OwnershipCheck("userID"))
 				r.Get("/progress", auth.HandleGetUserProgress)
 			})
+
+			// User management (admin or self)
+			userLogger := log.New(os.Stdout, "[USERS] ", log.LstdFlags)
+			userHandler := users.NewHandler(db.Pool, userLogger)
+			r.Post("/users", userHandler.CreateUser)
+
 			// Modules & Labs (Publicly readable for students)
 			r.Get("/modules", modules.HandleGetModules)
 			r.Get("/modules/{moduleID}/labs", modules.HandleGetLabsByModule)
