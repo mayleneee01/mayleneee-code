@@ -261,7 +261,7 @@ export default function DashboardPage() {
                       </span>
                       <span style={{ marginLeft: 'auto' }}>
                         <a
-                          href={`/paths/${path.id}`}
+                          href={`/modules/${path.id}`}
                           className="btn btn-sm btn-ghost"
                           style={{ fontSize: 'var(--text-xs)', padding: 'var(--space-1) var(--space-2)' }}
                         >

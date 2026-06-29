@@ -25,9 +25,9 @@ export default function Navbar({ currentPage = 'dashboard' }) {
 
   const navLinks = [
     { key: 'dashboard', href: '/dashboard', icon: <LayoutDashboard size={18} strokeWidth={2} />, label: t('nav.dashboard') },
-    { key: 'paths', href: '/paths', icon: <Book size={18} strokeWidth={2} />, label: t('nav.paths') },
-    { key: 'labs', href: '/labs', icon: <Terminal size={18} strokeWidth={2} />, label: t('nav.labs') },
-    { key: 'leaderboard', href: '/leaderboard', icon: <Trophy size={18} strokeWidth={2} />, label: t('nav.leaderboard') },
+    { key: 'paths', href: '/modules', icon: <Book size={18} strokeWidth={2} />, label: t('nav.paths') },
+    { key: 'labs', href: '/modules', icon: <Terminal size={18} strokeWidth={2} />, label: t('nav.labs') },
+    { key: 'leaderboard', href: '/dashboard', icon: <Trophy size={18} strokeWidth={2} />, label: t('nav.leaderboard') },
   ];
 
   return (
