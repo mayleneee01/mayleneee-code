@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: mayleneee-frontend:latest
+    container_name: mayleneee_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:8080/api # Update this to your real domain in production (e.g., https://api.yourdomain.com/api)
+    depends_on:
+      - backend
+    networks:
+      - mayleneee_net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: mayleneee-backend:latest
+    container_name: mayleneee_backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - FRONTEND_URL=http://localhost:3000 # Update this to your real frontend domain in production
+      - JWT_SECRET=change_this_to_a_secure_random_string_in_production
+      # - DB_HOST=postgres
+      # - DB_USER=mayleneee_admin
+      # - DB_PASSWORD=ganti_dengan_password_sangat_kuat
+      # - DB_NAME=mayleneee_code
+      # - DB_PORT=5432
+    # depends_on:
+    #   - postgres
+    networks:
+      - mayleneee_net
+
+  # Uncomment the postgres service below if you want Docker to manage your database as well.
+  # If you already installed PostgreSQL directly on your VPS (seperti langkah sebelumnya), biarkan ini di-comment.
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: mayleneee_postgres
+  #   restart: unless-stopped
+  #   environment:
+  #     - POSTGRES_USER=mayleneee_admin
+  #     - POSTGRES_PASSWORD=ganti_dengan_password_sangat_kuat
+  #     - POSTGRES_DB=mayleneee_code
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - mayleneee_net
+
+networks:
+  mayleneee_net:
+    driver: bridge
+
+# volumes:
+#   postgres_data:

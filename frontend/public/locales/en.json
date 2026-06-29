@@ -1,0 +1,143 @@
+{
+  "common": {
+    "appName": "Mayleneee.code",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "back": "Back",
+    "next": "Next",
+    "close": "Close",
+    "search": "Search",
+    "free": "Free",
+    "premium": "Premium",
+    "upgrade": "Upgrade to Premium",
+    "viewAll": "View All",
+    "points": "pts",
+    "minutes": "min",
+    "modules": "modules",
+    "labs": "labs",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "notStarted": "Not Started",
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "expert": "Expert"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "paths": "Learning Paths",
+    "labs": "Labs",
+    "leaderboard": "Leaderboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register"
+  },
+  "auth": {
+    "loginTitle": "Welcome Back",
+    "loginSubtitle": "Sign in to continue your learning journey",
+    "registerTitle": "Create Account",
+    "registerSubtitle": "Start your coding and hacking journey today",
+    "email": "Email Address",
+    "emailPlaceholder": "you@example.com",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "username": "Username",
+    "usernamePlaceholder": "Choose a username",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Confirm your password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "loginButton": "Sign In",
+    "registerButton": "Create Account",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "signUpLink": "Sign up",
+    "signInLink": "Sign in",
+    "orContinueWith": "or continue with",
+    "loginWithGoogle": "Continue with Google",
+    "loginWithGitHub": "Continue with GitHub",
+    "passwordRequirements": "At least 8 characters with uppercase, lowercase, number, and special character",
+    "errors": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email address",
+      "passwordRequired": "Password is required",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "passwordMismatch": "Passwords do not match",
+      "usernameRequired": "Username is required",
+      "usernameTooShort": "Username must be at least 3 characters",
+      "invalidCredentials": "Invalid email or password",
+      "accountExists": "An account with this email already exists"
+    }
+  },
+  "dashboard": {
+    "greeting": "Welcome back, {{name}}",
+    "greetingDefault": "Welcome back",
+    "subtitle": "Continue where you left off or explore new learning paths.",
+    "stats": {
+      "totalPoints": "Total Points",
+      "modulesCompleted": "Modules Completed",
+      "labsSolved": "Labs Solved",
+      "currentStreak": "Current Streak"
+    },
+    "learningPaths": "Learning Paths",
+    "recentActivity": "Recent Activity"
+  },
+  "paths": {
+    "coding": {
+      "title": "Coding Fundamentals",
+      "description": "Master programming from HTML/CSS basics to advanced languages like Python, Go, Rust, and Java."
+    },
+    "asd": {
+      "title": "Algorithms & Data Structures",
+      "description": "Strengthen your programming logic with structured C++ modules covering arrays, trees, graphs, and sorting algorithms."
+    },
+    "hacking": {
+      "title": "Ethical Hacking",
+      "description": "Hands-on penetration testing labs covering web exploitation, privilege escalation, and network security."
+    }
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "allTime": "All Time",
+    "yourRank": "Your Rank",
+    "noData": "No leaderboard data yet"
+  },
+  "lab": {
+    "startLab": "Start Lab",
+    "stopLab": "Stop Lab",
+    "resetLab": "Reset Lab",
+    "submitFlag": "Submit Flag",
+    "flagPlaceholder": "Enter the flag...",
+    "timeRemaining": "Time Remaining",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "connecting": "Connecting...",
+    "sessionExpired": "Lab session expired",
+    "flagCorrect": "Correct! Challenge completed.",
+    "flagIncorrect": "Incorrect flag. Try again.",
+    "hints": {
+      "title": "Hints",
+      "reveal": "Reveal Hint",
+      "warning": "Using this hint will reduce your score by {{penalty}} points.",
+      "level": "Hint Level {{level}}"
+    }
+  },
+  "theme": {
+    "light": "Light Mode",
+    "dark": "Dark Mode",
+    "toggle": "Toggle theme"
+  },
+  "language": {
+    "select": "Language",
+    "current": "English"
+  }
+}

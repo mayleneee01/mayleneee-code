@@ -1,0 +1,143 @@
+{
+  "common": {
+    "appName": "Mayleneee.code",
+    "loading": "Memuat...",
+    "error": "Terjadi kesalahan",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "submit": "Kirim",
+    "back": "Kembali",
+    "next": "Selanjutnya",
+    "close": "Tutup",
+    "search": "Cari",
+    "free": "Gratis",
+    "premium": "Premium",
+    "upgrade": "Tingkatkan ke Premium",
+    "viewAll": "Lihat Semua",
+    "points": "poin",
+    "minutes": "mnt",
+    "modules": "modul",
+    "labs": "lab",
+    "completed": "Selesai",
+    "inProgress": "Sedang Berjalan",
+    "notStarted": "Belum Dimulai",
+    "beginner": "Pemula",
+    "intermediate": "Menengah",
+    "advanced": "Lanjutan",
+    "expert": "Ahli"
+  },
+  "nav": {
+    "dashboard": "Dasbor",
+    "paths": "Jalur Pembelajaran",
+    "labs": "Laboratorium",
+    "leaderboard": "Papan Peringkat",
+    "profile": "Profil",
+    "settings": "Pengaturan",
+    "logout": "Keluar",
+    "login": "Masuk",
+    "register": "Daftar"
+  },
+  "auth": {
+    "loginTitle": "Selamat Datang Kembali",
+    "loginSubtitle": "Masuk untuk melanjutkan perjalanan belajar Anda",
+    "registerTitle": "Buat Akun",
+    "registerSubtitle": "Mulai perjalanan coding dan hacking Anda hari ini",
+    "email": "Alamat Email",
+    "emailPlaceholder": "anda@contoh.com",
+    "password": "Kata Sandi",
+    "passwordPlaceholder": "Masukkan kata sandi Anda",
+    "username": "Nama Pengguna",
+    "usernamePlaceholder": "Pilih nama pengguna",
+    "confirmPassword": "Konfirmasi Kata Sandi",
+    "confirmPasswordPlaceholder": "Konfirmasi kata sandi Anda",
+    "showPassword": "Tampilkan kata sandi",
+    "hidePassword": "Sembunyikan kata sandi",
+    "rememberMe": "Ingat saya",
+    "forgotPassword": "Lupa kata sandi?",
+    "loginButton": "Masuk",
+    "registerButton": "Buat Akun",
+    "noAccount": "Belum punya akun?",
+    "hasAccount": "Sudah punya akun?",
+    "signUpLink": "Daftar",
+    "signInLink": "Masuk",
+    "orContinueWith": "atau lanjutkan dengan",
+    "loginWithGoogle": "Lanjutkan dengan Google",
+    "loginWithGitHub": "Lanjutkan dengan GitHub",
+    "passwordRequirements": "Minimal 8 karakter dengan huruf besar, huruf kecil, angka, dan karakter khusus",
+    "errors": {
+      "emailRequired": "Email wajib diisi",
+      "emailInvalid": "Masukkan alamat email yang valid",
+      "passwordRequired": "Kata sandi wajib diisi",
+      "passwordTooShort": "Kata sandi minimal 8 karakter",
+      "passwordMismatch": "Kata sandi tidak cocok",
+      "usernameRequired": "Nama pengguna wajib diisi",
+      "usernameTooShort": "Nama pengguna minimal 3 karakter",
+      "invalidCredentials": "Email atau kata sandi salah",
+      "accountExists": "Akun dengan email ini sudah ada"
+    }
+  },
+  "dashboard": {
+    "greeting": "Selamat datang kembali, {{name}}",
+    "greetingDefault": "Selamat datang kembali",
+    "subtitle": "Lanjutkan dari terakhir kali atau jelajahi jalur pembelajaran baru.",
+    "stats": {
+      "totalPoints": "Total Poin",
+      "modulesCompleted": "Modul Selesai",
+      "labsSolved": "Lab Terselesaikan",
+      "currentStreak": "Streak Saat Ini"
+    },
+    "learningPaths": "Jalur Pembelajaran",
+    "recentActivity": "Aktivitas Terbaru"
+  },
+  "paths": {
+    "coding": {
+      "title": "Dasar Pemrograman",
+      "description": "Kuasai pemrograman dari dasar HTML/CSS hingga bahasa tingkat lanjut seperti Python, Go, Rust, dan Java."
+    },
+    "asd": {
+      "title": "Algoritma & Struktur Data",
+      "description": "Perkuat logika pemrograman Anda dengan modul C++ terstruktur mencakup array, pohon, graf, dan algoritma pengurutan."
+    },
+    "hacking": {
+      "title": "Peretasan Etis",
+      "description": "Lab pengujian penetrasi praktis mencakup eksploitasi web, eskalasi hak akses, dan keamanan jaringan."
+    }
+  },
+  "leaderboard": {
+    "title": "Papan Peringkat",
+    "weekly": "Mingguan",
+    "monthly": "Bulanan",
+    "allTime": "Sepanjang Waktu",
+    "yourRank": "Peringkat Anda",
+    "noData": "Belum ada data peringkat"
+  },
+  "lab": {
+    "startLab": "Mulai Lab",
+    "stopLab": "Hentikan Lab",
+    "resetLab": "Reset Lab",
+    "submitFlag": "Kirim Flag",
+    "flagPlaceholder": "Masukkan flag...",
+    "timeRemaining": "Waktu Tersisa",
+    "connected": "Terhubung",
+    "disconnected": "Terputus",
+    "connecting": "Menghubungkan...",
+    "sessionExpired": "Sesi lab telah berakhir",
+    "flagCorrect": "Benar! Tantangan selesai.",
+    "flagIncorrect": "Flag salah. Coba lagi.",
+    "hints": {
+      "title": "Petunjuk",
+      "reveal": "Tampilkan Petunjuk",
+      "warning": "Menggunakan petunjuk ini akan mengurangi skor Anda sebesar {{penalty}} poin.",
+      "level": "Petunjuk Tingkat {{level}}"
+    }
+  },
+  "theme": {
+    "light": "Mode Terang",
+    "dark": "Mode Gelap",
+    "toggle": "Ganti tema"
+  },
+  "language": {
+    "select": "Bahasa",
+    "current": "Bahasa Indonesia"
+  }
+}
