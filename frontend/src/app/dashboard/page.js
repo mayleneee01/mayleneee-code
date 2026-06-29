@@ -207,7 +207,7 @@ export default function Dashboard() {
           {/* Header */}
           <div className="dashboard-header animate-fade-in" style={{ marginBottom: 'var(--space-8)' }}>
             <h1 className="dashboard-greeting" id="dashboard-greeting" style={{ fontSize: 'var(--text-4xl)', fontWeight: 800 }}>
-              {t('dashboard.greeting', { name: user?.display_name || user?.username || 'Hacker' })}
+              Welcome, {user?.display_name || user?.username || 'Hacker'}
             </h1>
             <p className="dashboard-subtext" style={{ color: 'var(--text-tertiary)', fontSize: 'var(--text-lg)' }}>{t('dashboard.subtitle')}</p>
           </div>
@@ -231,45 +231,60 @@ export default function Dashboard() {
                         background: 'var(--bg-secondary)',
                         border: '1px solid var(--border-primary)',
                         borderRadius: 'var(--radius-lg)',
-                        padding: 'var(--space-5)',
                         display: 'flex',
-                        alignItems: 'center',
-                        gap: 'var(--space-5)',
-                        transition: 'transform 0.2s',
-                        cursor: 'pointer'
+                        alignItems: 'stretch',
+                        transition: 'transform 0.2s, box-shadow 0.2s',
+                        cursor: 'pointer',
+                        overflow: 'hidden'
                       }}
-                      onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                      onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
                     >
+                      {/* Thumbnail Image */}
                       <div style={{ 
-                        width: '60px', height: '60px', borderRadius: '12px', 
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        background: path.category === 'coding' ? 'rgba(59, 130, 246, 0.1)' : path.category === 'asd' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(16, 185, 129, 0.1)',
-                        color: path.category === 'coding' ? '#3b82f6' : path.category === 'asd' ? '#f59e0b' : '#10b981'
+                        width: '180px', 
+                        background: 'var(--bg-tertiary)',
+                        backgroundImage: `url(/images/paths/${path.category}.png)`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        position: 'relative'
                       }}>
-                        {path.icon === 'code' ? <IconCode /> : path.icon === 'brain' ? <IconBrain /> : <IconShield />}
+                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, transparent, var(--bg-secondary))' }}></div>
                       </div>
                       
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-1)' }}>
-                          <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px', background: 'var(--bg-tertiary)', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
-                            {path.category}
-                          </span>
+                      {/* Content */}
+                      <div style={{ flex: 1, padding: 'var(--space-5)', display: 'flex', alignItems: 'center' }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-1)' }}>
+                            <span style={{ fontSize: '10px', fontWeight: 700, padding: '2px 6px', borderRadius: '4px', background: 'var(--bg-tertiary)', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
+                              {path.category}
+                            </span>
+                          </div>
+                          <h3 style={{ fontSize: 'var(--text-lg)', marginBottom: 'var(--space-1)' }}>{t(`paths.${path.id}.title`) || path.id.toUpperCase()}</h3>
+                          <div style={{ display: 'flex', gap: 'var(--space-4)', fontSize: 'var(--text-sm)', color: 'var(--text-tertiary)' }}>
+                            <span>{path.modules} Modules</span>
+                            <span>{path.estimatedHours} Hours</span>
+                          </div>
                         </div>
-                        <h3 style={{ fontSize: 'var(--text-lg)', marginBottom: 'var(--space-1)' }}>{t(`paths.${path.id}.title`) || path.id.toUpperCase()}</h3>
-                        <div style={{ display: 'flex', gap: 'var(--space-4)', fontSize: 'var(--text-sm)', color: 'var(--text-tertiary)' }}>
-                          <span>{path.modules} Modules</span>
-                          <span>{path.estimatedHours} Hours</span>
-                        </div>
-                      </div>
-                      
-                      <div style={{ width: '150px', textAlign: 'right' }}>
-                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginBottom: 'var(--space-1)' }}>{path.progress}% Complete</div>
-                        <div style={{ width: '100%', height: '6px', background: 'var(--bg-tertiary)', borderRadius: '3px', overflow: 'hidden' }}>
-                          <div style={{ width: `${path.progress}%`, height: '100%', background: 'var(--color-primary-500)' }}></div>
+                        
+                        <div style={{ width: '150px', textAlign: 'right' }}>
+                          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginBottom: 'var(--space-2)' }}>
+                            <span style={{ color: 'var(--color-primary-400)', fontWeight: 600 }}>{path.progress}%</span> Complete
+                          </div>
+                          <div style={{ width: '100%', height: '6px', background: 'var(--bg-tertiary)', borderRadius: '3px', overflow: 'hidden' }}>
+                            <div style={{ width: `${path.progress}%`, height: '100%', background: 'var(--color-primary-500)' }}></div>
+                          </div>
                         </div>
                       </div>
                     </div>
+                      
+
                   ))}
                 </div>
               </section>

@@ -55,7 +55,12 @@ export default function CertificatesPage() {
     }
   }, []);
 
-  function handleDownload(cert) {
+  function handleDownload(e, cert) {
+    e.stopPropagation(); // Prevent routing to modules when clicking download
+    if (user.tier !== 'premium' && user.tier !== 'admin' && user.role !== 'admin') {
+      alert("Premium Required: You must upgrade to a premium account to claim and download certificates.");
+      return;
+    }
     alert(`Downloading Certificate ${cert.id} for ${cert.path}...`);
     // Logic to generate and download PDF goes here
   }
@@ -87,7 +92,13 @@ export default function CertificatesPage() {
         {earnedCerts.length > 0 && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: 'var(--space-6)', marginBottom: 'var(--space-10)' }}>
             {earnedCerts.map(cert => (
-              <div key={cert.id} style={{ background: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-primary)', overflow: 'hidden' }}>
+              <div 
+                key={cert.id} 
+                onClick={() => window.location.href = `/modules`} 
+                style={{ background: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-primary)', overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.2s', boxShadow: 'var(--shadow-md)' }}
+                onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+              >
                 <div style={{ padding: 'var(--space-8)', textAlign: 'center', background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)', borderBottom: '1px solid var(--border-primary)' }}>
                   <div style={{ fontSize: 'var(--text-xs)', textTransform: 'uppercase', letterSpacing: '2px', color: 'var(--text-secondary)', marginBottom: 'var(--space-4)' }}>Certificate of Completion</div>
                   <h3 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, marginBottom: 'var(--space-2)' }}>{cert.path}</h3>
@@ -99,8 +110,9 @@ export default function CertificatesPage() {
                     <div>Issued: {cert.date}</div>
                     <div>ID: {cert.id}</div>
                   </div>
-                  <button onClick={() => handleDownload(cert)} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Download size={16} /> Download
+                  <button onClick={(e) => handleDownload(e, cert)} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {user.tier === 'premium' || user.role === 'admin' ? <Download size={16} /> : <Lock size={16} />} 
+                    {user.tier === 'premium' || user.role === 'admin' ? 'Download' : 'Claim (Premium)'}
                   </button>
                 </div>
               </div>
