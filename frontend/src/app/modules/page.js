@@ -1,112 +1,149 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Navbar from '../../components/Navbar';
-import Link from 'next/link';
+import MainLayout from '../../components/MainLayout';
 import { useI18n } from '../../context/I18nContext';
-import { Book, Code, Shield, Brain } from 'lucide-react';
+import { Book, Shield, Code, Brain } from 'lucide-react';
+import Link from 'next/link';
 
 export default function ModulesPage() {
   const { t } = useI18n();
-  const [activeTab, setActiveTab] = useState('coding');
-  const [modules, setModules] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [learningPaths, setLearningPaths] = useState([
+    { id: 'coding', category: 'coding', icon: <Code size={24} />, title: 'Coding Fundamentals', description: 'Master the basics of programming and software engineering.', modules: 0, estimatedHours: 0, progress: 0 },
+    { id: 'asd', category: 'asd', icon: <Brain size={24} />, title: 'Algorithms & Data Structures', description: 'Learn how to optimize code and solve complex problems efficiently.', modules: 0, estimatedHours: 0, progress: 0 },
+    { id: 'hacking', category: 'hacking', icon: <Shield size={24} />, title: 'Ethical Hacking', description: 'Become a cybersecurity expert through hands-on penetration testing.', modules: 0, estimatedHours: 0, progress: 0 },
+  ]);
 
   useEffect(() => {
+    // 1. Fetch modules to calculate path counts
     fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/v1/modules`)
-      .then(res => res.json())
-      .then(data => {
+    .then(res => res.json())
+    .then(data => {
         if (Array.isArray(data)) {
-          setModules(data);
+            const counts = { coding: 0, asd: 0, hacking: 0 };
+            data.forEach(m => {
+                if (counts[m.category] !== undefined) {
+                    counts[m.category]++;
+                }
+            });
+            
+            // 2. Try to fetch user progress if logged in
+            const token = localStorage.getItem('mayleneee-token');
+            const userStr = localStorage.getItem('mayleneee-user');
+            
+            if (token && userStr) {
+                const u = JSON.parse(userStr);
+                fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/v1/users/${u.id}/progress`, {
+                  headers: { 'Authorization': `Bearer ${token}` }
+                })
+                .then(res => res.json())
+                .then(progressData => {
+                    // Update paths with counts and mock progress
+                    const pts = progressData.total_points || 0;
+                    setLearningPaths(prev => prev.map(p => ({
+                        ...p,
+                        modules: counts[p.category] || 0,
+                        estimatedHours: (counts[p.category] || 0) * 2,
+                        progress: p.category === 'coding' ? Math.min(100, Math.floor(pts / 100 * 100)) 
+                                : p.category === 'asd' ? Math.min(100, Math.floor((pts-100) / 100 * 100))
+                                : Math.min(100, Math.floor((pts-200) / 100 * 100))
+                    })));
+                })
+                .catch(() => updatePathsOnlyCounts(counts));
+            } else {
+                updatePathsOnlyCounts(counts);
+            }
         }
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Failed to fetch modules:", err);
-        setLoading(false);
-      });
+    }).catch(err => console.error("Failed to fetch modules:", err));
   }, []);
 
-  const tabs = [
-    { id: 'coding', label: 'Pemrograman Bahasa', icon: <Code size={18} /> },
-    { id: 'asd', label: 'Algoritma & Struktur Data (ASD)', icon: <Brain size={18} /> },
-    { id: 'hacking', label: 'Keamanan Siber (Hacking)', icon: <Shield size={18} /> },
-  ];
-
-  const filteredModules = modules.filter(m => m.category === activeTab);
+  function updatePathsOnlyCounts(counts) {
+      setLearningPaths(prev => prev.map(p => ({
+          ...p,
+          modules: counts[p.category] || 0,
+          estimatedHours: (counts[p.category] || 0) * 2,
+          progress: 0
+      })));
+  }
 
   return (
-    <>
-      <Navbar currentPage="paths" />
+    <MainLayout currentPage="paths">
       <main className="modules-page" style={{ padding: 'var(--space-8) var(--space-6)', maxWidth: '1200px', margin: '0 auto' }}>
-        <h1 style={{ fontSize: 'var(--text-3xl)', marginBottom: 'var(--space-2)' }}>Katalog Belajar</h1>
-        <p style={{ color: 'var(--text-tertiary)', marginBottom: 'var(--space-8)' }}>Pilih jalur belajarmu dan mulailah beraksi.</p>
-
-        <div style={{ display: 'flex', gap: 'var(--space-4)', borderBottom: '1px solid var(--color-border)', marginBottom: 'var(--space-6)' }}>
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-2)',
-                padding: 'var(--space-3) var(--space-4)',
-                background: 'none',
-                border: 'none',
-                borderBottom: activeTab === tab.id ? '2px solid var(--color-primary-500)' : '2px solid transparent',
-                color: activeTab === tab.id ? 'var(--color-primary-500)' : 'var(--text-secondary)',
-                cursor: 'pointer',
-                fontWeight: activeTab === tab.id ? 600 : 400,
-              }}
-            >
-              {tab.icon}
-              {tab.label}
-            </button>
-          ))}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: 'var(--space-2)' }}>
+          <Book size={32} style={{ color: 'var(--color-primary-500)' }} />
+          <h1 style={{ fontSize: 'var(--text-3xl)' }}>Learning Paths</h1>
         </div>
+        <p style={{ color: 'var(--text-tertiary)', marginBottom: 'var(--space-8)' }}>
+          Explore structured curriculums designed to take you from beginner to expert.
+        </p>
 
-        {loading ? (
-          <p>Memuat katalog...</p>
-        ) : filteredModules.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 'var(--space-12)', color: 'var(--text-tertiary)', background: 'var(--color-surface)', borderRadius: 'var(--radius-lg)' }}>
-            <Book size={48} style={{ opacity: 0.5, marginBottom: 'var(--space-4)' }} />
-            <p>Belum ada modul yang tersedia di kategori ini.</p>
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 'var(--space-6)' }}>
-            {filteredModules.map((module) => (
-              <Link href={`/modules/${module.id}`} key={module.id} style={{ textDecoration: 'none' }}>
-                <div style={{
-                  background: 'var(--color-surface)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 'var(--radius-lg)',
-                  padding: 'var(--space-5)',
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: 'var(--space-6)' }}>
+          {learningPaths.map((path) => (
+            <Link href={`/modules/${path.id}`} key={path.id} style={{ textDecoration: 'none', color: 'inherit' }}>
+              <div 
+                style={{ 
+                  background: 'var(--bg-secondary)', 
+                  borderRadius: 'var(--radius-lg)', 
+                  border: '1px solid var(--border-primary)', 
+                  overflow: 'hidden',
                   transition: 'transform 0.2s, box-shadow 0.2s',
+                  cursor: 'pointer',
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column'
                 }}
-                onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = 'var(--shadow-md)'; }}
-                onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
-                >
-                  <h3 style={{ fontSize: 'var(--text-lg)', marginBottom: 'var(--space-2)', color: 'var(--text-primary)' }}>{module.title}</h3>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-4)', flexGrow: 1 }}>{module.description}</p>
-                  
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: 'var(--space-4)', borderTop: '1px solid var(--color-border)' }}>
-                    <span style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--color-primary-600)', background: 'var(--color-primary-100)', padding: '2px 8px', borderRadius: '12px' }}>
-                      {module.difficulty}
-                    </span>
-                    <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-tertiary)' }}>
-                      {module.pointsReward} Poin
-                    </span>
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                {/* Thumbnail Image */}
+                <div style={{ 
+                  height: '160px', 
+                  background: 'var(--bg-tertiary)',
+                  backgroundImage: `url(/images/paths/${path.category}.png)`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  position: 'relative'
+                }}>
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent, var(--bg-secondary))' }}></div>
+                  <div style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(0,0,0,0.6)', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold', backdropFilter: 'blur(4px)' }}>
+                    {path.category.toUpperCase()}
                   </div>
                 </div>
-              </Link>
-            ))}
-          </div>
-        )}
+                
+                {/* Content */}
+                <div style={{ padding: 'var(--space-5)', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  <h3 style={{ fontSize: 'var(--text-xl)', marginBottom: 'var(--space-2)' }}>{t(`paths.${path.id}.title`) || path.title}</h3>
+                  <p style={{ color: 'var(--text-tertiary)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-4)', flex: 1 }}>
+                    {path.description}
+                  </p>
+                  
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
+                    <span>{path.modules} Modules</span>
+                    <span>{path.estimatedHours} Hours</span>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--text-xs)', marginBottom: '4px', color: 'var(--text-tertiary)' }}>
+                      <span>Progress</span>
+                      <span style={{ color: 'var(--color-primary-400)', fontWeight: 600 }}>{path.progress < 0 ? 0 : path.progress}%</span>
+                    </div>
+                    <div style={{ width: '100%', height: '6px', background: 'var(--bg-tertiary)', borderRadius: '3px', overflow: 'hidden' }}>
+                      <div style={{ width: `${path.progress < 0 ? 0 : path.progress}%`, height: '100%', background: 'var(--color-primary-500)' }}></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
       </main>
-    </>
+    </MainLayout>
   );
 }
