@@ -31,5 +31,34 @@
     "weekly": "Weekly",
     "monthly": "Monthly",
     "allTime": "All Time"
+  },
+  "auth": {
+    "loginTitle": "Welcome Back",
+    "loginSubtitle": "Enter your credentials to access your account.",
+    "registerTitle": "Create an Account",
+    "registerSubtitle": "Join Mayleneee.code and start learning.",
+    "loginWithGoogle": "Continue with Google",
+    "loginWithGitHub": "Continue with GitHub",
+    "orContinueWith": "or continue with email",
+    "email": "Email Address",
+    "emailPlaceholder": "your@email.com",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "forgotPassword": "Forgot password?",
+    "loginButton": "Sign In",
+    "registerButton": "Sign Up",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "signUpLink": "Sign up",
+    "signInLink": "Sign in",
+    "passwordRequirements": "Must be at least 8 characters",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Repeat your password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred. Please try again."
   }
 }

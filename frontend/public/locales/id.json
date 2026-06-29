@@ -31,5 +31,34 @@
     "weekly": "Mingguan",
     "monthly": "Bulanan",
     "allTime": "Sepanjang Masa"
+  },
+  "auth": {
+    "loginTitle": "Selamat Datang Kembali",
+    "loginSubtitle": "Masukkan kredensial Anda untuk mengakses akun.",
+    "registerTitle": "Buat Akun",
+    "registerSubtitle": "Bergabunglah dengan Mayleneee.code dan mulai belajar.",
+    "loginWithGoogle": "Lanjutkan dengan Google",
+    "loginWithGitHub": "Lanjutkan dengan GitHub",
+    "orContinueWith": "atau lanjutkan dengan email",
+    "email": "Alamat Email",
+    "emailPlaceholder": "email@anda.com",
+    "password": "Kata Sandi",
+    "passwordPlaceholder": "Masukkan kata sandi Anda",
+    "forgotPassword": "Lupa kata sandi?",
+    "loginButton": "Masuk",
+    "registerButton": "Daftar",
+    "noAccount": "Belum punya akun?",
+    "hasAccount": "Sudah punya akun?",
+    "signUpLink": "Daftar",
+    "signInLink": "Masuk",
+    "passwordRequirements": "Minimal 8 karakter",
+    "confirmPassword": "Konfirmasi Kata Sandi",
+    "confirmPasswordPlaceholder": "Ulangi kata sandi Anda",
+    "showPassword": "Tampilkan kata sandi",
+    "hidePassword": "Sembunyikan kata sandi"
+  },
+  "common": {
+    "loading": "Memuat...",
+    "error": "Terjadi kesalahan. Silakan coba lagi."
   }
 }

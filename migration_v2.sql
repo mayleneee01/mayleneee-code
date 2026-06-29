@@ -33,7 +33,6 @@ INSERT INTO users (
     tier,
     locale,
     theme,
-    is_active,
     created_at
 ) VALUES (
     uuid_generate_v4(),
@@ -48,7 +47,6 @@ INSERT INTO users (
     'premium',
     'en',
     'dark',
-    true,
     NOW()
 ) ON CONFLICT (email) DO UPDATE SET
     role = 'admin',
