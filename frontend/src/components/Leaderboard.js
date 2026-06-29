@@ -1,19 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useI18n } from '../context/I18nContext';
-
-// Sample leaderboard data (in production, fetched from API)
-const MOCK_LEADERBOARD = [
-  { id: '1', username: 'shadowbyte', displayName: 'ShadowByte', points: 12450, modulesCompleted: 48, labsCompleted: 32 },
-  { id: '2', username: 'cipherx', displayName: 'CipherX', points: 11280, modulesCompleted: 45, labsCompleted: 28 },
-  { id: '3', username: 'n0xpl0it', displayName: 'N0xPl0it', points: 10890, modulesCompleted: 42, labsCompleted: 30 },
-  { id: '4', username: 'algo_queen', displayName: 'AlgoQueen', points: 9750, modulesCompleted: 40, labsCompleted: 22 },
-  { id: '5', username: 'kernelpanic', displayName: 'KernelPanic', points: 9320, modulesCompleted: 38, labsCompleted: 25 },
-  { id: '6', username: 'rootkit42', displayName: 'RootKit42', points: 8890, modulesCompleted: 35, labsCompleted: 24 },
-  { id: '7', username: 'bytecrusher', displayName: 'ByteCrusher', points: 8450, modulesCompleted: 33, labsCompleted: 20 },
-  { id: '8', username: 'zeroshell', displayName: 'ZeroShell', points: 7920, modulesCompleted: 30, labsCompleted: 18 },
-];
 
 function getRankClass(index) {
   if (index === 0) return 'leaderboard-rank-1';
@@ -36,6 +24,18 @@ function formatPoints(points) {
 export default function Leaderboard() {
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState('weekly');
+  const [leaderboard, setLeaderboard] = useState([]);
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/v1/leaderboard`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setLeaderboard(data);
+        }
+      })
+      .catch(err => console.error("Failed to fetch leaderboard:", err));
+  }, []);
 
   const tabs = [
     { key: 'weekly', label: t('leaderboard.weekly') },
@@ -62,23 +62,27 @@ export default function Leaderboard() {
       </div>
 
       <div className="leaderboard-list stagger-children">
-        {MOCK_LEADERBOARD.map((user, index) => (
+        {leaderboard.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: 'var(--space-4)', color: 'var(--text-tertiary)' }}>
+            Belum ada user di leaderboard. Jadilah yang pertama!
+          </div>
+        ) : leaderboard.map((user, index) => (
           <div
-            key={user.id}
+            key={user.user_id}
             className="leaderboard-item"
-            id={`leaderboard-item-${user.id}`}
+            id={`leaderboard-item-${user.user_id}`}
           >
             <span className={`leaderboard-rank ${getRankClass(index)}`}>
               {index + 1}
             </span>
             <div className="leaderboard-avatar">
-              {getInitials(user.displayName)}
+              {getInitials(user.display_name || user.username)}
             </div>
             <div className="leaderboard-info">
-              <div className="leaderboard-name">{user.displayName}</div>
+              <div className="leaderboard-name">{user.display_name || user.username}</div>
             </div>
             <span className="leaderboard-points">
-              {formatPoints(user.points)} {t('common.points')}
+              {formatPoints(user.total_points)} {t('common.points')}
             </span>
           </div>
         ))}

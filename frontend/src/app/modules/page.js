@@ -2,173 +2,111 @@
 
 import { useState, useEffect } from 'react';
 import Navbar from '../../components/Navbar';
-import { Book, Play, Lock, Code, Shield, Terminal } from 'lucide-react';
 import Link from 'next/link';
+import { useI18n } from '../../context/I18nContext';
+import { Book, Code, Shield, Brain } from 'lucide-react';
 
 export default function ModulesPage() {
+  const { t } = useI18n();
+  const [activeTab, setActiveTab] = useState('coding');
   const [modules, setModules] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch modules from the real API we just created, but fallback to mock data if it fails (e.g. no DB connected yet)
   useEffect(() => {
-    const fetchModules = async () => {
-      try {
-        const res = await fetch(process.env.NEXT_PUBLIC_API_URL + '/modules');
-        if (res.ok) {
-          const data = await res.json();
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/v1/modules`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
           setModules(data);
-        } else {
-          throw new Error('API not ready');
         }
-      } catch (err) {
-        // Fallback friendly mock data to show the new UI
-        setModules([
-          {
-            id: 'web-fundamentals',
-            title: 'Web Security Fundamentals',
-            description: 'Learn how modern web applications work and how to find common vulnerabilities like XSS and CSRF.',
-            category: 'hacking',
-            difficulty: 'beginner',
-            accessTier: 'free',
-            pointsReward: 100,
-            type: 'terminal'
-          },
-          {
-            id: 'sql-injection-mastery',
-            title: 'SQL Injection Mastery',
-            description: 'Master the art of extracting data from databases through advanced SQL injection techniques.',
-            category: 'hacking',
-            difficulty: 'intermediate',
-            accessTier: 'free',
-            pointsReward: 250,
-            type: 'terminal'
-          },
-          {
-            id: 'secure-coding-go',
-            title: 'Secure Coding in Go',
-            description: 'Fix vulnerable Go source code. Practice sanitizing inputs and preventing command injection directly in the code editor.',
-            category: 'coding',
-            difficulty: 'advanced',
-            accessTier: 'premium',
-            pointsReward: 500,
-            type: 'code'
-          },
-          {
-            id: 'jwt-vulnerabilities',
-            title: 'Fixing JWT Vulnerabilities',
-            description: 'Analyze and patch a broken JWT implementation. Learn how algorithm confusion attacks work and how to prevent them.',
-            category: 'coding',
-            difficulty: 'intermediate',
-            accessTier: 'free',
-            pointsReward: 300,
-            type: 'code'
-          },
-          {
-            id: 'linux-privesc',
-            title: 'Linux Privilege Escalation',
-            description: 'Start as a low-privileged user and find misconfigurations to escalate your privileges to root.',
-            category: 'hacking',
-            difficulty: 'advanced',
-            accessTier: 'premium',
-            pointsReward: 1000,
-            type: 'terminal'
-          }
-        ]);
-      } finally {
         setLoading(false);
-      }
-    };
-    fetchModules();
+      })
+      .catch(err => {
+        console.error("Failed to fetch modules:", err);
+        setLoading(false);
+      });
   }, []);
 
-  const getCategoryIcon = (category) => {
-    switch (category) {
-      case 'coding': return <Code size={20} className="text-primary-500" />;
-      case 'hacking': return <Shield size={20} className="text-danger-500" />;
-      default: return <Terminal size={20} className="text-accent-500" />;
-    }
-  };
+  const tabs = [
+    { id: 'coding', label: 'Pemrograman Bahasa', icon: <Code size={18} /> },
+    { id: 'asd', label: 'Algoritma & Struktur Data (ASD)', icon: <Brain size={18} /> },
+    { id: 'hacking', label: 'Keamanan Siber (Hacking)', icon: <Shield size={18} /> },
+  ];
 
-  const getDifficultyColor = (diff) => {
-    switch (diff) {
-      case 'beginner': return 'var(--color-success-500)';
-      case 'intermediate': return 'var(--color-accent-500)';
-      case 'advanced': return 'var(--color-danger-500)';
-      default: return 'var(--color-primary-500)';
-    }
-  };
+  const filteredModules = modules.filter(m => m.category === activeTab);
 
   return (
-    <div className="layout">
+    <>
       <Navbar currentPage="paths" />
-      
-      <main className="main-content" style={{ padding: 'var(--space-8) var(--space-6)' }}>
-        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-          
-          <div style={{ textAlign: 'center', marginBottom: 'var(--space-12)' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '64px', height: '64px', borderRadius: 'var(--radius-2xl)', backgroundColor: 'var(--color-primary-100)', color: 'var(--color-primary-600)', marginBottom: 'var(--space-4)' }}>
-              <Book size={32} strokeWidth={1.5} />
-            </div>
-            <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 'var(--space-2)' }}>
-              Learning Modules
-            </h1>
-            <p style={{ fontSize: '1.125rem', color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto' }}>
-              Choose your path. Learn by doing in secure, isolated sandbox environments.
-            </p>
+      <main className="modules-page" style={{ padding: 'var(--space-8) var(--space-6)', maxWidth: '1200px', margin: '0 auto' }}>
+        <h1 style={{ fontSize: 'var(--text-3xl)', marginBottom: 'var(--space-2)' }}>Katalog Belajar</h1>
+        <p style={{ color: 'var(--text-tertiary)', marginBottom: 'var(--space-8)' }}>Pilih jalur belajarmu dan mulailah beraksi.</p>
+
+        <div style={{ display: 'flex', gap: 'var(--space-4)', borderBottom: '1px solid var(--color-border)', marginBottom: 'var(--space-6)' }}>
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-2)',
+                padding: 'var(--space-3) var(--space-4)',
+                background: 'none',
+                border: 'none',
+                borderBottom: activeTab === tab.id ? '2px solid var(--color-primary-500)' : '2px solid transparent',
+                color: activeTab === tab.id ? 'var(--color-primary-500)' : 'var(--text-secondary)',
+                cursor: 'pointer',
+                fontWeight: activeTab === tab.id ? 600 : 400,
+              }}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {loading ? (
+          <p>Memuat katalog...</p>
+        ) : filteredModules.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: 'var(--space-12)', color: 'var(--text-tertiary)', background: 'var(--color-surface)', borderRadius: 'var(--radius-lg)' }}>
+            <Book size={48} style={{ opacity: 0.5, marginBottom: 'var(--space-4)' }} />
+            <p>Belum ada modul yang tersedia di kategori ini.</p>
           </div>
-
-          {loading ? (
-            <div style={{ textAlign: 'center', padding: 'var(--space-12)' }}>
-              <div className="loader" style={{ width: '40px', height: '40px', borderWidth: '4px', margin: '0 auto' }}></div>
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 'var(--space-6)' }}>
-              {modules.map(mod => (
-                <div key={mod.id} className="card" style={{ display: 'flex', flexDirection: 'column', height: '100%', transition: 'all 0.3s ease', position: 'relative', overflow: 'hidden' }}>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 'var(--space-6)' }}>
+            {filteredModules.map((module) => (
+              <Link href={`/modules/${module.id}`} key={module.id} style={{ textDecoration: 'none' }}>
+                <div style={{
+                  background: 'var(--color-surface)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: 'var(--space-5)',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}
+                onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = 'var(--shadow-md)'; }}
+                onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+                >
+                  <h3 style={{ fontSize: 'var(--text-lg)', marginBottom: 'var(--space-2)', color: 'var(--text-primary)' }}>{module.title}</h3>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-4)', flexGrow: 1 }}>{module.description}</p>
                   
-                  {mod.accessTier === 'premium' && (
-                    <div style={{ position: 'absolute', top: 0, right: 0, padding: 'var(--space-2) var(--space-4)', backgroundColor: 'var(--color-accent-100)', color: 'var(--color-accent-700)', borderBottomLeftRadius: 'var(--radius-lg)', fontWeight: 600, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Lock size={12} strokeWidth={2.5} /> Premium
-                    </div>
-                  )}
-
-                  <div className="card-header" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', paddingBottom: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-                      <div style={{ padding: 'var(--space-2)', borderRadius: 'var(--radius-lg)', backgroundColor: 'var(--color-gray-100)' }}>
-                        {getCategoryIcon(mod.category)}
-                      </div>
-                      <div>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: getDifficultyColor(mod.difficulty) }}>
-                          {mod.difficulty} • {mod.type === 'code' ? 'Code Challenge' : 'Terminal Lab'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="card-body" style={{ flexGrow: 1 }}>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: 'var(--space-2)', color: 'var(--text-primary)' }}>
-                      {mod.title}
-                    </h3>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', lineHeight: 1.6 }}>
-                      {mod.description}
-                    </p>
-                  </div>
-
-                  <div className="card-footer" style={{ borderTop: '1px solid var(--border-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 'var(--space-4)' }}>
-                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-primary-600)' }}>
-                      +{mod.pointsReward} XP
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: 'var(--space-4)', borderTop: '1px solid var(--color-border)' }}>
+                    <span style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--color-primary-600)', background: 'var(--color-primary-100)', padding: '2px 8px', borderRadius: '12px' }}>
+                      {module.difficulty}
                     </span>
-                    <Link href={`/modules/${mod.id}`} className="btn btn-primary" style={{ padding: '0.5rem 1rem', borderRadius: 'var(--radius-xl)' }}>
-                      <Play size={16} fill="currentColor" />
-                      <span>Start Lab</span>
-                    </Link>
+                    <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-tertiary)' }}>
+                      {module.pointsReward} Poin
+                    </span>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </main>
-    </div>
+    </>
   );
 }

@@ -312,18 +312,33 @@ func HandleGetUserProgress(w http.ResponseWriter, r *http.Request) {
 	// At this point, OwnershipCheck middleware has already verified that the
 	// authenticated user is either the owner or an admin.
 
-	// Mock progress data (replace with database query)
+	// Fetch real progress from database
+	var totalPoints int
+	var modulesCompleted int
+	
+	// Query to calculate total score and completed modules
+	query := `
+		SELECT 
+			COALESCE(SUM(score), 0) as total_points,
+			COUNT(CASE WHEN status = 'completed' THEN 1 END) as modules_completed
+		FROM user_progress 
+		WHERE user_id = $1
+	`
+	err := db.Pool.QueryRow(r.Context(), query, userID).Scan(&totalPoints, &modulesCompleted)
+	if err != nil {
+		log.Printf("[ERROR] Failed to fetch user progress: %v", err)
+		totalPoints = 0
+		modulesCompleted = 0
+	}
+
+	// Format response
 	progress := map[string]interface{}{
 		"user_id":           userID,
-		"total_points":      4280,
-		"modules_completed": 18,
-		"labs_solved":       12,
-		"current_streak":    7,
-		"recent_modules": []map[string]interface{}{
-			{"module_id": "html-basics", "status": "completed", "score": 100},
-			{"module_id": "css-layout", "status": "completed", "score": 95},
-			{"module_id": "js-fundamentals", "status": "in_progress", "score": 0},
-		},
+		"total_points":      totalPoints,
+		"modules_completed": modulesCompleted,
+		"labs_solved":       0, // Real labs progress can be added later
+		"current_streak":    0, // Real streak logic can be added later
+		"recent_modules":    []map[string]interface{}{}, // Can be fetched later
 	}
 
 	writeJSON(w, http.StatusOK, progress)
@@ -350,6 +365,9 @@ func HandleOAuthRedirect(w http.ResponseWriter, r *http.Request) {
 	if provider == "google" {
 		url := getGoogleOAuthConfig().AuthCodeURL(state, oauth2.AccessTypeOffline)
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+		return
+	} else if provider == "github" {
+		writeError(w, http.StatusNotImplemented, "not_implemented", "GitHub login is coming soon!")
 		return
 	}
 

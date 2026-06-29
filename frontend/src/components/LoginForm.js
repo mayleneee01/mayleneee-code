@@ -104,11 +104,33 @@ export default function LoginForm({ mode = 'login', onModeChange }) {
     setServerError('');
 
     try {
-      // Simulated API call — in production, use AuthContext.login/register
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const endpoint = isLogin ? '/v1/auth/login' : '/v1/auth/register';
+      const payload = isLogin ? {
+        email: formData.email,
+        password: formData.password
+      } : {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        display_name: formData.username // Default display name
+      };
 
-      // Success: redirect would happen via AuthContext
-      console.log(`${mode} successful:`, formData.email);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.message || data.error || 'Authentication failed');
+      }
+
+      // Success: Save token and user, then redirect
+      localStorage.setItem('mayleneee-token', data.token);
+      localStorage.setItem('mayleneee-user', JSON.stringify(data.user));
+      window.location.href = '/dashboard';
     } catch (err) {
       setServerError(err.message || t('common.error'));
     } finally {
@@ -117,7 +139,10 @@ export default function LoginForm({ mode = 'login', onModeChange }) {
   }
 
   function handleOAuth(provider) {
-    // In production, use AuthContext.loginWithOAuth(provider)
+    if (provider === 'github') {
+      setServerError('GitHub login is coming soon!');
+      return;
+    }
     const apiBase = process.env.NEXT_PUBLIC_API_URL || '/api';
     const callbackUrl = encodeURIComponent(window.location.origin + '/auth/callback');
     window.location.href = `${apiBase}/v1/auth/oauth/${provider}?redirect=${callbackUrl}`;

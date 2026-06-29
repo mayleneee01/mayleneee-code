@@ -21,6 +21,7 @@ import (
 	"mayleneee-code/backend/internal/admin"
 	"mayleneee-code/backend/internal/auth"
 	"mayleneee-code/backend/internal/db"
+	"mayleneee-code/backend/internal/labs"
 	"mayleneee-code/backend/internal/middleware"
 	"mayleneee-code/backend/internal/modules"
 	"mayleneee-code/backend/internal/users"
@@ -116,10 +117,17 @@ func main() {
 			userLogger := log.New(os.Stdout, "[USERS] ", log.LstdFlags)
 			userHandler := users.NewHandler(db.Pool, userLogger)
 			r.Post("/users", userHandler.CreateUser)
+			
+			// Leaderboard (Publicly readable for students)
+			r.Get("/leaderboard", userHandler.GetLeaderboard)
 
 			// Modules & Labs (Publicly readable for students)
 			r.Get("/modules", modules.HandleGetModules)
 			r.Get("/modules/{moduleID}/labs", modules.HandleGetLabsByModule)
+			
+			labLogger := log.New(os.Stdout, "[LABS] ", log.LstdFlags)
+			labHandler := labs.NewHandler(db.Pool, labLogger)
+			r.Post("/labs/{labID}/execute", labHandler.ExecuteCommand)
 
 			// Admin Routes
 			r.Route("/admin", func(r chi.Router) {

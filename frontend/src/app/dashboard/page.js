@@ -102,45 +102,75 @@ function IconLayers() {
   );
 }
 
-// Mock user stats data
-const MOCK_STATS = {
-  totalPoints: 4280,
-  modulesCompleted: 18,
-  labsSolved: 12,
-  currentStreak: 7,
-};
-
-const LEARNING_PATHS = [
-  {
-    id: 'coding',
-    category: 'coding',
-    icon: <IconCode />,
-    modules: 42,
-    estimatedHours: 120,
-    progress: 35,
-  },
-  {
-    id: 'asd',
-    category: 'asd',
-    icon: <IconBrain />,
-    modules: 28,
-    estimatedHours: 80,
-    progress: 20,
-  },
-  {
-    id: 'hacking',
-    category: 'hacking',
-    icon: <IconShield />,
-    modules: 36,
-    estimatedHours: 100,
-    progress: 15,
-  },
-];
-
 export default function DashboardPage() {
   const { t } = useI18n();
+  const [stats, setStats] = useState({
+    totalPoints: 0,
+    modulesCompleted: 0,
+    labsSolved: 0,
+    currentStreak: 0,
+  });
+  const [user, setUser] = useState(null);
 
-  const stats = [
+  const [learningPaths, setLearningPaths] = useState([
+    { id: 'coding', category: 'coding', icon: <IconCode />, modules: 0, estimatedHours: 0, progress: 0 },
+    { id: 'asd', category: 'asd', icon: <IconBrain />, modules: 0, estimatedHours: 0, progress: 0 },
+    { id: 'hacking', category: 'hacking', icon: <IconShield />, modules: 0, estimatedHours: 0, progress: 0 },
+  ]);
+
+  useEffect(() => {
+    // 1. Get user from localStorage
+    const userStr = localStorage.getItem('mayleneee-user');
+    const token = localStorage.getItem('mayleneee-token');
+    
+    if (userStr && token) {
+      try {
+        const u = JSON.parse(userStr);
+        setUser(u);
+        
+        // 2. Fetch progress from API
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/v1/users/${u.id}/progress`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data && !data.error) {
+            setStats({
+              totalPoints: data.total_points || 0,
+              modulesCompleted: data.modules_completed || 0,
+              labsSolved: data.labs_solved || 0,
+              currentStreak: data.current_streak || 0,
+            });
+          }
+        })
+        .catch(err => console.error("Failed to fetch progress:", err));
+
+        // 3. Fetch modules to calculate path counts
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/v1/modules`)
+        .then(res => res.json())
+        .then(data => {
+            if (Array.isArray(data)) {
+                const counts = { coding: 0, asd: 0, hacking: 0 };
+                data.forEach(m => {
+                    if (counts[m.category] !== undefined) {
+                        counts[m.category]++;
+                    }
+                });
+                setLearningPaths([
+                    { id: 'coding', category: 'coding', icon: <IconCode />, modules: counts.coding, estimatedHours: counts.coding * 2, progress: 0 },
+                    { id: 'asd', category: 'asd', icon: <IconBrain />, modules: counts.asd, estimatedHours: counts.asd * 2, progress: 0 },
+                    { id: 'hacking', category: 'hacking', icon: <IconShield />, modules: counts.hacking, estimatedHours: counts.hacking * 2, progress: 0 },
+                ]);
+            }
+        }).catch(err => console.error("Failed to fetch modules:", err));
+
+      } catch (e) {
+        console.error("Invalid user data in local storage");
+      }
+    }
+  }, []);
+
+  const statCards = [
     {
       icon: <IconTrendUp />,
       iconClass: 'stat-icon-blue',
@@ -199,7 +229,7 @@ export default function DashboardPage() {
             <div>
               <h2 className="section-title">{t('dashboard.learningPaths')}</h2>
               <div className="path-cards stagger-children">
-                {LEARNING_PATHS.map((path) => (
+                {learningPaths.map((path) => (
                   <div
                     key={path.id}
                     className={`path-card path-card-${path.category}`}
@@ -220,13 +250,13 @@ export default function DashboardPage() {
                             : 'var(--color-success-600)',
                       }}
                     >
-                      {path.icon}
+                      {path.icon === 'code' ? <IconCode /> : path.icon === 'brain' ? <IconBrain /> : <IconShield />}
                     </div>
                     <h3 className="path-card-title">
-                      {t(`paths.${path.id}.title`)}
+                      {t(`paths.${path.id}.title`) || path.id.toUpperCase()}
                     </h3>
                     <p className="path-card-desc">
-                      {t(`paths.${path.id}.description`)}
+                      {t(`paths.${path.id}.description`) || "Explore this learning path."}
                     </p>
 
                     {/* Progress Bar */}

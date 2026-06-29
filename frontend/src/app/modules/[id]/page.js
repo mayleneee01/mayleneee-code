@@ -1,154 +1,105 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, use } from 'react';
 import Navbar from '../../../components/Navbar';
 import LabTerminal from '../../../components/LabTerminal';
-import CodeEditor from '../../../components/CodeEditor';
-import { Flag, HelpCircle, ChevronLeft, Lightbulb } from 'lucide-react';
+import { useI18n } from '../../../context/I18nContext';
+import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
-export default function LabPage({ params }) {
-  const [flag, setFlag] = useState('');
-  const [showHint, setShowHint] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export default function ModuleDetailPage({ params }) {
+  const unwrappedParams = use(params);
+  const moduleId = unwrappedParams.id;
+  
+  const { t } = useI18n();
+  const [moduleInfo, setModuleInfo] = useState(null);
+  const [labs, setLabs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const isCodeChallenge = params.id === 'secure-coding-go' || params.id === 'jwt-vulnerabilities';
+  useEffect(() => {
+    // Fetch all modules to find this one
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/v1/modules`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          const m = data.find(mod => mod.id === moduleId);
+          setModuleInfo(m);
+        }
+      })
+      .catch(err => console.error("Failed to fetch module details:", err));
 
-  const mockCodeGo = `package main
+    // Fetch labs for this module
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || '/api'}/v1/modules/${moduleId}/labs`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setLabs(data);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to fetch labs:", err);
+        setLoading(false);
+      });
+  }, [moduleId]);
 
-import (
-	"fmt"
-	"net/http"
-)
-
-func handleRequest(w http.ResponseWriter, r *http.Request) {
-	userInput := r.URL.Query().Get("name")
-	
-	// Vulnerable: Directly reflecting user input
-	// Fix this by sanitizing or encoding the output
-	fmt.Fprintf(w, "Hello, %s!", ___ANSWER___)
-}`;
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    // Simulate submission
-    setTimeout(() => {
-      setIsSubmitting(false);
-      if (flag.includes('HTB{')) {
-        alert('Congratulations! Flag is correct.');
-      } else {
-        alert('Incorrect flag.');
-      }
-    }, 1000);
-  };
+  if (loading) return <div>Memuat data modul...</div>;
+  if (!moduleInfo) return <div>Modul tidak ditemukan.</div>;
 
   return (
-    <div className="layout" style={{ height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-      <Navbar currentPage="labs" />
-      
-      <main style={{ flexGrow: 1, display: 'flex', overflow: 'hidden' }}>
+    <>
+      <Navbar currentPage="paths" />
+      <main className="module-detail-page" style={{ padding: 'var(--space-8) var(--space-6)', maxWidth: '1200px', margin: '0 auto', display: 'flex', gap: 'var(--space-8)' }}>
         
-        {/* Left Sidebar: Instructions */}
-        <aside style={{ width: '400px', flexShrink: 0, backgroundColor: 'var(--bg-card)', borderRight: '1px solid var(--border-secondary)', display: 'flex', flexDirection: 'column' }}>
-          
-          <div style={{ padding: 'var(--space-4)', borderBottom: '1px solid var(--border-secondary)' }}>
-            <Link href="/modules" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: 'var(--text-tertiary)', fontSize: '0.875rem', textDecoration: 'none', marginBottom: 'var(--space-2)' }}>
-              <ChevronLeft size={16} /> Back to Modules
-            </Link>
-            <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-              Web Security Fundamentals
-            </h1>
+        {/* Left Column: Module Info */}
+        <div style={{ flex: '1', maxWidth: '400px' }}>
+          <Link href="/modules" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', color: 'var(--text-tertiary)', textDecoration: 'none', marginBottom: 'var(--space-6)' }}>
+            <ArrowLeft size={16} /> Kembali ke Katalog
+          </Link>
+
+          <h1 style={{ fontSize: 'var(--text-3xl)', marginBottom: 'var(--space-2)', color: 'var(--text-primary)' }}>{moduleInfo.title}</h1>
+          <div style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: 'var(--space-4)' }}>
+            <span style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--color-primary-600)', background: 'var(--color-primary-100)', padding: '2px 8px', borderRadius: '12px' }}>
+              {moduleInfo.category.toUpperCase()}
+            </span>
+            <span style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--color-accent-600)', background: 'var(--color-accent-100)', padding: '2px 8px', borderRadius: '12px' }}>
+              {moduleInfo.difficulty}
+            </span>
           </div>
 
-          <div style={{ padding: 'var(--space-6)', flexGrow: 1, overflowY: 'auto' }}>
-            <h2 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: 'var(--space-3)' }}>Lab Instructions</h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', lineHeight: 1.6, marginBottom: 'var(--space-4)' }}>
-              {isCodeChallenge 
-                ? "In this lab, you are reviewing source code that contains a critical vulnerability. Your objective is to patch the code by filling in the missing piece."
-                : "In this lab, you have access to a target machine running a vulnerable web application. Your objective is to find the hidden flag by exploiting a common misconfiguration."}
-            </p>
-            
-            {isCodeChallenge ? (
-              <ul style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', lineHeight: 1.6, paddingLeft: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
-                <li>Review the surrounding code context.</li>
-                <li>Identify the injection or logical flaw.</li>
-                <li>Provide the exact syntax needed to sanitize the input.</li>
-              </ul>
+          <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6', marginBottom: 'var(--space-6)' }}>
+            {moduleInfo.description}
+          </p>
+
+          <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-4)' }}>
+            <h3 style={{ fontSize: 'var(--text-lg)', marginBottom: 'var(--space-4)' }}>Daftar Tantangan (Labs)</h3>
+            {labs.length === 0 ? (
+              <p style={{ color: 'var(--text-tertiary)' }}>Belum ada lab di modul ini.</p>
             ) : (
-              <ul style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', lineHeight: 1.6, paddingLeft: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
-                <li>Enumerate open ports and services.</li>
-                <li>Discover hidden directories.</li>
-                <li>Gain administrative access to retrieve the flag.</li>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {labs.map((lab, idx) => (
+                  <li key={lab.id} style={{ padding: 'var(--space-3) 0', borderBottom: idx !== labs.length - 1 ? '1px solid var(--color-border)' : 'none' }}>
+                    <div style={{ fontWeight: 600 }}>{idx + 1}. {lab.title}</div>
+                    <div style={{ fontSize: 'var(--text-sm)', color: 'var(--text-tertiary)' }}>{lab.description}</div>
+                  </li>
+                ))}
               </ul>
             )}
-
-            <div style={{ backgroundColor: 'var(--color-primary-50)', border: '1px solid var(--color-primary-200)', padding: 'var(--space-4)', borderRadius: 'var(--radius-lg)', marginBottom: 'var(--space-6)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', color: 'var(--color-primary-700)', fontWeight: 700, marginBottom: 'var(--space-2)' }}>
-                <Lightbulb size={18} /> Pro Tip
-              </div>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-primary-900)', margin: 0 }}>
-                Always check the source code and common hidden files (like `robots.txt` or `.git`) when attacking a web application.
-              </p>
-            </div>
-            
-            {showHint ? (
-               <div style={{ backgroundColor: 'var(--color-accent-50)', border: '1px solid var(--color-accent-200)', padding: 'var(--space-4)', borderRadius: 'var(--radius-lg)', marginBottom: 'var(--space-6)' }}>
-                 <p style={{ fontSize: '0.875rem', color: 'var(--color-accent-900)', margin: 0 }}>
-                   <strong>Hint:</strong> {isCodeChallenge ? "Look into HTML encoding functions available in Go's standard library (e.g. html.EscapeString)." : "Have you tried looking into the `/admin` directory we found earlier? Default credentials might work."}
-                 </p>
-               </div>
-            ) : (
-              <button 
-                onClick={() => setShowHint(true)}
-                className="btn btn-ghost" style={{ width: '100%', marginBottom: 'var(--space-6)', border: '1px dashed var(--border-secondary)', padding: '1rem' }}
-              >
-                <HelpCircle size={16} /> Show Hint (-10 Points)
-              </button>
-            )}
-
-          </div>
-
-          <div style={{ padding: 'var(--space-4)', borderTop: '1px solid var(--border-secondary)', backgroundColor: 'var(--bg-primary)' }}>
-            <form onSubmit={handleSubmit}>
-              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: 'var(--space-2)', color: 'var(--text-primary)' }}>Submit Flag</label>
-              <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                <div className="input-wrapper" style={{ flexGrow: 1 }}>
-                  <span className="input-icon-left"><Flag size={16} strokeWidth={2} className="text-success-500" /></span>
-                  <input
-                    type="text"
-                    value={flag}
-                    onChange={(e) => setFlag(e.target.value)}
-                    placeholder="HTB{...}"
-                    className="input"
-                    required
-                  />
-                </div>
-                <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-                  {isSubmitting ? '...' : 'Submit'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </aside>
-
-        {/* Right Side: Terminal/Workspace */}
-        <div style={{ flexGrow: 1, padding: 'var(--space-4)', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ flexGrow: 1, backgroundColor: 'var(--bg-code)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: 'var(--shadow-lg)' }}>
-             {isCodeChallenge ? (
-               <CodeEditor 
-                 initialCode={mockCodeGo} 
-                 language="go" 
-                 expectedAnswer="html.EscapeString(userInput)"
-                 onSolve={() => alert("Great job! You patched the XSS vulnerability.")}
-               />
-             ) : (
-               <LabTerminal labName={`Target: ${params.id || 'Web Fundamentals'}`} />
-             )}
           </div>
         </div>
 
+        {/* Right Column: Lab Terminal */}
+        <div style={{ flex: '2' }}>
+          {labs.length > 0 ? (
+            <LabTerminal lab={labs[0]} category={moduleInfo.category} />
+          ) : (
+            <div style={{ background: '#0a0a0a', borderRadius: 'var(--radius-lg)', padding: 'var(--space-6)', color: 'var(--text-tertiary)', textAlign: 'center', height: '500px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              Terminal Offline (Tidak ada lab)
+            </div>
+          )}
+        </div>
+
       </main>
-    </div>
+    </>
   );
 }
