@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useI18n } from '../../context/I18nContext';
 import Navbar from '../../components/Navbar';
 import Leaderboard from '../../components/Leaderboard';
@@ -174,25 +175,25 @@ export default function DashboardPage() {
     {
       icon: <IconTrendUp />,
       iconClass: 'stat-icon-blue',
-      value: MOCK_STATS.totalPoints.toLocaleString(),
+      value: stats.totalPoints.toLocaleString(),
       label: t('dashboard.stats.totalPoints'),
     },
     {
       icon: <IconTarget />,
       iconClass: 'stat-icon-green',
-      value: MOCK_STATS.modulesCompleted,
+      value: stats.modulesCompleted,
       label: t('dashboard.stats.modulesCompleted'),
     },
     {
       icon: <IconZap />,
       iconClass: 'stat-icon-yellow',
-      value: MOCK_STATS.labsSolved,
+      value: stats.labsSolved,
       label: t('dashboard.stats.labsSolved'),
     },
     {
       icon: <IconFlame />,
       iconClass: 'stat-icon-red',
-      value: `${MOCK_STATS.currentStreak}d`,
+      value: `${stats.currentStreak}d`,
       label: t('dashboard.stats.currentStreak'),
     },
   ];
@@ -212,7 +213,7 @@ export default function DashboardPage() {
 
           {/* Stats Grid */}
           <div className="stats-grid stagger-children">
-            {stats.map((stat, index) => (
+            {statCards.map((stat, index) => (
               <div key={index} className="stat-card" id={`stat-card-${index}`}>
                 <div className={`stat-icon ${stat.iconClass}`}>
                   {stat.icon}
