@@ -26,7 +26,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/microcosm-cc/bluemonday"
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 
+	"mayleneee-code/backend/internal/db"
 	"mayleneee-code/backend/internal/middleware"
 )
 
@@ -100,10 +103,8 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-// --- In-Memory User Store (replace with PostgreSQL in production) ---
-
-var users = map[string]*User{}
-var emailIndex = map[string]string{} // email -> user ID
+// --- PostgreSQL Auth ---
+// We now use PostgreSQL (db.Pool) instead of in-memory maps.
 
 // --- Handlers ---
 
@@ -148,9 +149,11 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check for duplicate email
-	if _, exists := emailIndex[req.Email]; exists {
-		writeError(w, http.StatusConflict, "duplicate_email", "An account with this email already exists")
+	// Check for duplicate email or username in DB
+	var existingID string
+	err := db.Pool.QueryRow(context.Background(), "SELECT id FROM users WHERE email = $1 OR username = $2", req.Email, req.Username).Scan(&existingID)
+	if err == nil {
+		writeError(w, http.StatusConflict, "duplicate_user", "An account with this email or username already exists")
 		return
 	}
 
@@ -183,9 +186,19 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 		CreatedAt:    time.Now(),
 	}
 
-	// Store user
-	users[userID] = user
-	emailIndex[req.Email] = userID
+	// Store user in DB
+	query := `
+		INSERT INTO users (id, username, email, display_name, role, tier, locale, theme, password_hash, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+	`
+	_, err = db.Pool.Exec(context.Background(), query, 
+		user.ID, user.Username, user.Email, user.DisplayName, user.Role, user.Tier, user.Locale, user.Theme, user.PasswordHash, user.CreatedAt,
+	)
+	if err != nil {
+		log.Printf("[ERROR] DB insert failed: %v", err)
+		writeError(w, http.StatusInternalServerError, "server_error", "Registration failed")
+		return
+	}
 
 	// Generate JWT
 	token, err := generateJWT(user)
@@ -221,9 +234,18 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	// Generic error message to prevent user enumeration
 	const genericError = "Invalid email or password"
 
-	// Look up user by email
-	userID, exists := emailIndex[req.Email]
-	if !exists {
+	// Look up user by email from DB
+	user := &User{}
+	query := `
+		SELECT id, username, email, display_name, role, tier, locale, theme, password_hash, created_at 
+		FROM users WHERE email = $1
+	`
+	err := db.Pool.QueryRow(context.Background(), query, req.Email).Scan(
+		&user.ID, &user.Username, &user.Email, &user.DisplayName, &user.Role, 
+		&user.Tier, &user.Locale, &user.Theme, &user.PasswordHash, &user.CreatedAt,
+	)
+	
+	if err != nil {
 		// Perform a dummy bcrypt comparison to prevent timing attacks
 		bcrypt.CompareHashAndPassword(
 			[]byte("$2a$12$dummyhashtopreventtimingattacksonloginattempts0000"),
@@ -232,8 +254,6 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusUnauthorized, "invalid_credentials", genericError)
 		return
 	}
-
-	user := users[userID]
 
 	// Constant-time password comparison
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
@@ -244,12 +264,12 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	// Generate JWT
 	token, err := generateJWT(user)
 	if err != nil {
-		log.Printf("[ERROR] JWT generation failed for user %s: %v", userID, err)
+		log.Printf("[ERROR] JWT generation failed for user %s: %v", user.ID, err)
 		writeError(w, http.StatusInternalServerError, "server_error", "Login failed")
 		return
 	}
 
-	log.Printf("[INFO] User logged in: id=%s email=%s", userID, req.Email)
+	log.Printf("[INFO] User logged in: id=%s email=%s", user.ID, req.Email)
 
 	writeJSON(w, http.StatusOK, AuthResponse{
 		Token: token,
@@ -266,8 +286,17 @@ func HandleGetProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, exists := users[userID]
-	if !exists {
+	user := &User{}
+	query := `
+		SELECT id, username, email, display_name, role, tier, locale, theme, password_hash, created_at 
+		FROM users WHERE id = $1
+	`
+	err := db.Pool.QueryRow(context.Background(), query, userID).Scan(
+		&user.ID, &user.Username, &user.Email, &user.DisplayName, &user.Role, 
+		&user.Tier, &user.Locale, &user.Theme, &user.PasswordHash, &user.CreatedAt,
+	)
+
+	if err != nil {
 		writeError(w, http.StatusNotFound, "not_found", "User not found")
 		return
 	}
@@ -300,32 +329,31 @@ func HandleGetUserProgress(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, progress)
 }
 
+func getGoogleOAuthConfig() *oauth2.Config {
+	return &oauth2.Config{
+		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
+		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
+		RedirectURL:  os.Getenv("GOOGLE_REDIRECT_URI"),
+		Scopes: []string{
+			"https://www.googleapis.com/auth/userinfo.email",
+			"https://www.googleapis.com/auth/userinfo.profile",
+		},
+		Endpoint: google.Endpoint,
+	}
+}
+
 // HandleOAuthRedirect initiates the OAuth2 flow by redirecting to the provider.
 func HandleOAuthRedirect(w http.ResponseWriter, r *http.Request) {
 	provider := chi.URLParam(r, "provider")
+	state := generateCSRFState()
 
-	var authURL string
-	switch provider {
-	case "google":
-		authURL = fmt.Sprintf(
-			"https://accounts.google.com/o/oauth2/v2/auth?client_id=%s&redirect_uri=%s&response_type=code&scope=email+profile&state=%s",
-			os.Getenv("GOOGLE_CLIENT_ID"),
-			os.Getenv("GOOGLE_REDIRECT_URI"),
-			generateCSRFState(),
-		)
-	case "github":
-		authURL = fmt.Sprintf(
-			"https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s&scope=user:email&state=%s",
-			os.Getenv("GITHUB_CLIENT_ID"),
-			os.Getenv("GITHUB_REDIRECT_URI"),
-			generateCSRFState(),
-		)
-	default:
-		writeError(w, http.StatusBadRequest, "invalid_provider", "Unsupported OAuth provider")
+	if provider == "google" {
+		url := getGoogleOAuthConfig().AuthCodeURL(state, oauth2.AccessTypeOffline)
+		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 		return
 	}
 
-	http.Redirect(w, r, authURL, http.StatusTemporaryRedirect)
+	writeError(w, http.StatusBadRequest, "invalid_provider", "Unsupported OAuth provider")
 }
 
 // HandleOAuthCallback processes the OAuth2 callback from the provider.
@@ -345,14 +373,91 @@ func HandleOAuthCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// In production: exchange code for access token, fetch user profile,
-	// create or update user record, generate JWT, and redirect with token.
-	log.Printf("[INFO] OAuth callback received: provider=%s", provider)
+	if provider != "google" {
+		writeError(w, http.StatusBadRequest, "invalid_provider", "Unsupported OAuth provider")
+		return
+	}
 
-	// Placeholder response
-	writeJSON(w, http.StatusOK, map[string]string{
-		"message": fmt.Sprintf("OAuth callback for %s received. Implementation requires provider credentials.", provider),
-	})
+	conf := getGoogleOAuthConfig()
+	token, err := conf.Exchange(context.Background(), code)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "oauth_exchange_failed", "Failed to exchange code for token")
+		return
+	}
+
+	// Fetch user profile
+	client := conf.Client(context.Background(), token)
+	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "oauth_profile_failed", "Failed to get user profile")
+		return
+	}
+	defer resp.Body.Close()
+
+	var googleUser struct {
+		Id            string `json:"id"`
+		Email         string `json:"email"`
+		Name          string `json:"name"`
+		Picture       string `json:"picture"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&googleUser); err != nil {
+		writeError(w, http.StatusInternalServerError, "oauth_profile_parse_failed", "Failed to parse user profile")
+		return
+	}
+
+	// Check if user exists in DB
+	user := &User{}
+	query := `SELECT id, username, email, display_name, role, tier, locale, theme, password_hash, created_at FROM users WHERE email = $1`
+	err = db.Pool.QueryRow(context.Background(), query, googleUser.Email).Scan(
+		&user.ID, &user.Username, &user.Email, &user.DisplayName, &user.Role, 
+		&user.Tier, &user.Locale, &user.Theme, &user.PasswordHash, &user.CreatedAt,
+	)
+
+	if err != nil {
+		// Create new user since they don't exist
+		user.ID = uuid.New().String()
+		user.Email = googleUser.Email
+		user.Username = "user_" + googleUser.Id[:8]
+		user.DisplayName = googleUser.Name
+		user.Role = "student"
+		if user.Email == "mayleneee7@gmail.com" {
+			user.Role = "super_admin"
+		}
+		user.Tier = "free"
+		user.Locale = "en"
+		user.Theme = "light"
+		user.PasswordHash = "" // No password for OAuth users
+		user.CreatedAt = time.Now()
+
+		insertQuery := `
+			INSERT INTO users (id, username, email, display_name, avatar_url, oauth_provider, oauth_id, role, tier, locale, theme, password_hash, created_at)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+		`
+		_, err = db.Pool.Exec(context.Background(), insertQuery, 
+			user.ID, user.Username, user.Email, user.DisplayName, googleUser.Picture, "google", googleUser.Id, user.Role, user.Tier, user.Locale, user.Theme, user.PasswordHash, user.CreatedAt,
+		)
+		if err != nil {
+			log.Printf("[ERROR] Failed to insert OAuth user: %v", err)
+			writeError(w, http.StatusInternalServerError, "server_error", "Failed to create user account")
+			return
+		}
+	}
+
+	// Generate JWT Token
+	jwtToken, err := generateJWT(user)
+	if err != nil {
+		log.Printf("[ERROR] JWT generation failed for OAuth user %s: %v", user.ID, err)
+		writeError(w, http.StatusInternalServerError, "server_error", "Failed to generate token")
+		return
+	}
+
+	// Redirect to frontend with token
+	frontendURL := os.Getenv("FRONTEND_URL")
+	if frontendURL == "" {
+		frontendURL = "http://localhost:3000"
+	}
+	redirectURL := fmt.Sprintf("%s/auth/callback?token=%s", frontendURL, jwtToken)
+	http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 }
 
 // --- JWT Middleware ---
