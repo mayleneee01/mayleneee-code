@@ -5,9 +5,10 @@ import MainLayout from '../../components/MainLayout';
 import { useI18n } from '../../context/I18nContext';
 import { Book, Shield, Code, Brain } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import Link from 'next/link';
 
-export default function ModulesPage() {
+function ModulesContent() {
   const { t } = useI18n();
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
@@ -160,5 +161,13 @@ export default function ModulesPage() {
         </div>
       </main>
     </MainLayout>
+  );
+}
+
+export default function ModulesPage() {
+  return (
+    <Suspense fallback={<div>Loading paths...</div>}>
+      <ModulesContent />
+    </Suspense>
   );
 }
